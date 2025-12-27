@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "cum": "./cli/index.js"
+    "cum": "cli/index.js"
   },
   "scripts": {
     "fmt": "prettier --write ."
