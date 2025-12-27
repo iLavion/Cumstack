@@ -12,12 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iLavion/cumstack.git"
+    "url": "git+https://github.com/iLavion/Cumstack.git"
   },
   "bugs": {
-    "url": "https://github.com/iLavion/cumstack/issues"
+    "url": "https://github.com/iLavion/Cumstack/issues"
   },
-  "homepage": "https://github.com/iLavion/cumstack#readme",
+  "homepage": "https://github.com/iLavion/Cumstack#readme",
   "engines": {
     "node": ">=22"
   },
