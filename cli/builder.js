@@ -33,8 +33,11 @@ export async function buildApp(appRoot, isDev = false, buildTimestamp = Date.now
   const outDir = isDev ? 'dist/dev' : 'dist/live';
   console.log(`[cumstack] Building cumstack app for ${isDev ? 'development' : 'production'}...`);
   console.log(`[cumstack] Output: ${outDir}`);
+  console.log(`[cumstack] App root: ${appRoot}`);
+  console.log(`[cumstack] Entry point: ${path.join(appRoot, 'src/entry.server.jsx')}`);
   globalThis.__BUILD_TIMESTAMP__ = buildTimestamp;
   let serverBuild;
+  console.log('[cumstack] Starting server build...');
   try {
     serverBuild = await Bun.build({
       entrypoints: [path.join(appRoot, 'src/entry.server.jsx')],
@@ -86,7 +89,9 @@ export async function buildApp(appRoot, isDev = false, buildTimestamp = Date.now
     });
   } catch (error) {
     console.error('[cumstack] Server build threw an exception:');
-    console.error(error);
+    console.error('[cumstack] Error message:', error.message);
+    console.error('[cumstack] Error stack:', error.stack);
+    console.error('[cumstack] Full error:', error);
     throw new Error(`Server build failed: ${error.message}`);
   }
   if (!serverBuild.success) {
@@ -155,16 +160,28 @@ export async function buildApp(appRoot, isDev = false, buildTimestamp = Date.now
     const postcss = await import('postcss');
     const tailwindcss = await import('@tailwindcss/postcss');
     const cssPath = path.join(appRoot, 'src/main.css');
+    console.log(`[cumstack] Processing CSS from: ${cssPath}`);
+    console.log(`[cumstack] Tailwind base: ${appRoot}`);
+    console.log(`[cumstack] Tailwind content: ${path.join(appRoot, 'src/**/*.{js,jsx,ts,tsx}')}`);
     const css = await Bun.file(cssPath).text();
-    const result = await postcss.default([tailwindcss.default({ base: appRoot })]).process(css, {
-      from: cssPath,
-      to: path.join(appRoot, outDir, 'client/main.css'),
-      map: isDev ? { inline: true } : false,
-    });
+    const result = await postcss
+      .default([
+        tailwindcss.default({
+          base: appRoot,
+          content: [path.join(appRoot, 'src/**/*.{js,jsx,ts,tsx}')],
+        }),
+      ])
+      .process(css, {
+        from: cssPath,
+        to: path.join(appRoot, outDir, 'client/main.css'),
+        map: isDev ? { inline: true } : false,
+      });
     await Bun.write(path.join(appRoot, outDir, 'client/main.css'), result.css);
     console.log('[cumstack] CSS processed with Tailwind');
   } catch (error) {
-    console.warn('[cumstack] PostCSS processing failed:', error.message);
+    console.error('[cumstack] PostCSS processing failed:');
+    console.error('[cumstack] Error:', error);
+    console.error('[cumstack] Stack:', error.stack);
     const cssPath = path.join(appRoot, 'src/main.css');
     await Bun.write(path.join(appRoot, outDir, 'client/main.css'), await Bun.file(cssPath).text());
   }
