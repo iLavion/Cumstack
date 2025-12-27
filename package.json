@@ -1,0 +1,67 @@
+{
+  "name": "cumstack",
+  "version": "1.0.0",
+  "description": "A lightweight reactive framework with signals, routing, and i18n",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "cum": "./cli/index.js"
+  },
+  "scripts": {
+    "fmt": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iLavion/cumstack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iLavion/cumstack/issues"
+  },
+  "homepage": "https://github.com/iLavion/cumstack#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "index.js",
+    "src/",
+    "cli/",
+    "templates/"
+  ],
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "postcss": "^8.5.6",
+    "ws": "^8.18.3"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./app/client": "./src/app/client/index.js",
+    "./app/server": "./src/app/server/index.js",
+    "./app/shared/i18n": "./src/app/shared/i18n.js",
+    "./app/shared/reactivity": "./src/app/shared/reactivity.js",
+    "./app/shared/router": "./src/app/shared/router.js",
+    "./app/shared/utils": "./src/app/shared/utils.js",
+    "./app/shared/language-codes": "./src/app/shared/language-codes.js",
+    "./client/Twink": "./src/app/client/Twink.js",
+    "./client/components": "./src/app/client/components.js",
+    "./client/hmr": "./src/app/client/hmr.js",
+    "./server/components": "./src/app/server/components.js",
+    "./server/jsx": "./src/app/server/jsx.js",
+    "./server/hono-utils": "./src/app/server/hono-utils.js",
+    "./cli": "./cli/index.js"
+  },
+  "keywords": [
+    "framework",
+    "reactivity",
+    "signals",
+    "router",
+    "i18n"
+  ],
+  "author": {
+    "name": "Lavion <lavion@invalsia.com>",
+    "url": "https://github.com/iLavion"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.7.4"
+  }
+}

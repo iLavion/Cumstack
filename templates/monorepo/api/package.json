@@ -1,0 +1,13 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "API backend (placeholder)",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'API not implemented yet'",
+    "build": "echo 'API not implemented yet'"
+  },
+  "devDependencies": {
+    "bun": "^1.0.0"
+  }
+}

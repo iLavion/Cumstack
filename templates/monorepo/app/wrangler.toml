@@ -1,0 +1,35 @@
+name = "my-cumstack-app"
+main = "./dist/dev/server/main.server.js"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["global_fetch_strictly_public"]
+
+[dev]
+port = 7277
+
+[assets]
+directory = "./dist/dev/client"
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT                 = "production"
+APP_DOMAIN                  = "example.com"
+API_DOMAIN                  = "api.example.com"
+CDN_DOMAIN                  = "cdn.example.com"
+APP_NAME                    = "Example"
+STRIPE_PUBLISHABLE_KEY      = ""
+TURNSTILE_SITE_KEY          = ""
+
+[env.dev.vars]
+ENVIRONMENT                 = "development"
+APP_DOMAIN                  = "127.0.0.1:7277"
+API_DOMAIN                  = "127.0.0.1:7278"
+CDN_DOMAIN                  = "127.0.0.1:7279"
+APP_NAME                    = "Example (Local)"
+STRIPE_PUBLISHABLE_KEY      = ""
+TURNSTILE_SITE_KEY          = ""
+
+[[r2_buckets]]
+binding                     = "R2"
+bucket_name                 = "r2-example"
