@@ -8,7 +8,7 @@ import { initComponents } from './components.js';
 import { initHMR } from './hmr.js';
 
 export { Lust } from './Lust.js';
-export { configureHydration } from '../client.js';
+export { configureHydration, useRouter } from '../client.js';
 
 /**
  * get environment variable (client-side)
