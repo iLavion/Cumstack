@@ -4,7 +4,7 @@
  */
 
 import { createMoan } from './reactivity.js';
-import { isValidLanguageCode } from './language-codes.js';
+import { isValidLanguageCode, getLanguageName } from './language-codes.js';
 
 // translation store
 const translations = new Map();
@@ -24,7 +24,7 @@ let [currentLanguage, setCurrentLanguage] = createMoan(null);
  * get supported languages from config or all registered translations
  * @returns {string[]}
  */
-function getSupportedLanguages() {
+export function getSupportedLanguages() {
   const registered = Array.from(translations.keys());
   // if supportedLanguages is configured, filter registered translations
   if (i18nConfiguration.supportedLanguages && Array.isArray(i18nConfiguration.supportedLanguages)) {
@@ -269,3 +269,4 @@ export function getI18nConfiguration() {
 }
 
 export { currentLanguage };
+export { getLanguageName };
