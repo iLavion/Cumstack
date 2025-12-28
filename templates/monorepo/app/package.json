@@ -8,7 +8,7 @@
     "start": "bun run dist/server.js"
   },
   "dependencies": {
-    "cumstack": "^1.0.1"
+    "cumstack": "^1.0.2"
   },
   "devDependencies": {
     "bun": "^1.3.5",
