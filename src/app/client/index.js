@@ -7,7 +7,7 @@ import { setLanguage, detectBrowserLanguage, clearPreferredLanguage, getUserLang
 import { initComponents } from './components.js';
 import { initHMR } from './hmr.js';
 
-export { Twink } from './Twink.js';
+export { Lust } from './Lust.js';
 export { configureHydration } from '../client.js';
 
 /**
@@ -117,7 +117,7 @@ function renderElement(vnode, container) {
  */
 function setupNavigation() {
   // update all spa links to include language prefix if in a language route
-  function updateTwinksForLanguage() {
+  function updateLustsForLanguage() {
     const inLanguageRoute = window.location.pathname.match(/^\/([a-z]{2})(?:\/|$)/);
     if (!inLanguageRoute) return;
     const lang = inLanguageRoute[1];
@@ -130,7 +130,7 @@ function setupNavigation() {
   }
 
   // update on initial load
-  updateTwinksForLanguage();
+  updateLustsForLanguage();
 
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a[data-spa-link]');

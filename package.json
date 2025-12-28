@@ -42,7 +42,7 @@
     "./app/shared/router": "./src/app/shared/router.js",
     "./app/shared/utils": "./src/app/shared/utils.js",
     "./app/shared/language-codes": "./src/app/shared/language-codes.js",
-    "./client/Twink": "./src/app/client/Twink.js",
+    "./client/Lust": "./src/app/client/Lust.js",
     "./client/components": "./src/app/client/components.js",
     "./client/hmr": "./src/app/client/hmr.js",
     "./server/components": "./src/app/server/components.js",

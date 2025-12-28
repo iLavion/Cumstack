@@ -470,11 +470,11 @@ export function cowgirl(app, container) {
     if (!link) return;
     const href = link.getAttribute('href');
     if (!href) return;
-    const isSpaTwink = link.hasAttribute('data-spa-link');
+    const isSpaLust = link.hasAttribute('data-spa-link');
     const isNoSpa = link.hasAttribute('data-no-spa');
     if (isNoSpa) return;
     const isInternal = href.startsWith('/') && !href.startsWith('//');
-    if (isInternal || isSpaTwink) {
+    if (isInternal || isSpaLust) {
       e.preventDefault();
       if (i18nConfig?.explicitRouting) {
         const { language } = extractLanguageFromRoute(href);
@@ -498,7 +498,7 @@ export function cowgirl(app, container) {
  */
 const prefetchedUrls = new Set();
 function setupPrefetching() {
-  const observedTwinks = new Set();
+  const observedLusts = new Set();
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -509,31 +509,31 @@ function setupPrefetching() {
       } else {
         // unobserve links that leave viewport
         const link = entry.target;
-        if (!entry.isIntersecting && observedTwinks.has(link)) {
+        if (!entry.isIntersecting && observedLusts.has(link)) {
           observer.unobserve(link);
-          observedTwinks.delete(link);
+          observedLusts.delete(link);
         }
       }
     });
   });
-  const observeTwinks = () => {
+  const observeLusts = () => {
     // observe new links
     document.querySelectorAll('a[data-prefetch="visible"]').forEach((link) => {
-      if (!observedTwinks.has(link)) {
+      if (!observedLusts.has(link)) {
         observer.observe(link);
-        observedTwinks.add(link);
+        observedLusts.add(link);
       }
     });
     // clean up removed links
-    observedTwinks.forEach((link) => {
+    observedLusts.forEach((link) => {
       if (!document.contains(link)) {
         observer.unobserve(link);
-        observedTwinks.delete(link);
+        observedLusts.delete(link);
       }
     });
   };
-  observeTwinks();
-  const mutationObserver = new MutationObserver(observeTwinks);
+  observeLusts();
+  const mutationObserver = new MutationObserver(observeLusts);
   mutationObserver.observe(document.body, { childList: true, subtree: true });
   const mouseoverHandler = (e) => {
     const link = e.target.closest('a[data-prefetch="hover"]');
@@ -549,7 +549,7 @@ function setupPrefetching() {
   return () => {
     observer.disconnect();
     mutationObserver.disconnect();
-    observedTwinks.clear();
+    observedLusts.clear();
     document.removeEventListener('mouseover', mouseoverHandler);
   };
 }

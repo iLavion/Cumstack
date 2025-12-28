@@ -36,7 +36,7 @@ export async function renderToString(vnode) {
     return results.join('');
   }
 
-  // For plain objects from cumstack components (like Twink)
+  // For plain objects from cumstack components (like Lust)
   if (vnode && typeof vnode === 'object' && vnode.type && vnode.props !== undefined && !vnode.toStringToBuffer) {
     const { type, props, children } = vnode;
 
@@ -193,7 +193,7 @@ export function Meta(props) {
   return null;
 }
 
-export function TwinkTag(props) {
+export function LustTag(props) {
   headContext.links.push(props);
   return null;
 }
@@ -211,7 +211,7 @@ function processHeadChild(child) {
   else if (child.type === 'script') headContext.scripts.push(child.props);
   else if (child.type === Title) headContext.title = child.children?.[0] || 'App';
   else if (child.type === Meta) headContext.meta.push(child.props);
-  else if (child.type === TwinkTag) headContext.links.push(child.props);
+  else if (child.type === LustTag) headContext.links.push(child.props);
   else if (child.type === Script) headContext.scripts.push(child.props);
 }
 

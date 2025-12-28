@@ -2,10 +2,10 @@
 
 // client exports
 export { cowgirl, CowgirlCreampie, configureHydration } from './src/app/client/index.js';
-export { Twink } from './src/app/client/Twink.js';
+export { Lust } from './src/app/client/Lust.js';
 
 // server exports
-export { foxgirl, FoxgirlCreampie, Router, Route, Head, Title, Meta, TwinkTag, Script, h, renderToString } from './src/app/server/index.js';
+export { foxgirl, FoxgirlCreampie, Router, Route, Head, Title, Meta, LustTag, Script, h, renderToString } from './src/app/server/index.js';
 
 // shared exports
 export {

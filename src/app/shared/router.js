@@ -113,10 +113,10 @@ export function createRouter() {
 
 /**
  * create a link component helper
- * @param {string} href - Twink href
- * @param {Object} options - Twink options
+ * @param {string} href - Lust href
+ * @param {Object} options - Lust options
  */
-export function createTwink(href, options = {}) {
+export function createLust(href, options = {}) {
   return {
     href,
     onClick: (e) => {
