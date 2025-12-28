@@ -463,20 +463,16 @@ export async function foxgirl(app, options = {}) {
           // Always set cache control headers
           if (isDev) headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
           else if (headContext.cache) {
-            // Support both new (app/cdn) and traditional (maxAge/sMaxAge) syntax
-            const cache = headContext.cache;
-            const maxAge = cache.app ?? cache.maxAge ?? 0;
-            const sMaxAge = cache.cdn ?? cache.sMaxAge ?? null;
-            const { staleWhileRevalidate = null, staleIfError = null, tags = null, mustRevalidate = false } = cache;
+            const { app = 0, cdn = null, staleWhileRevalidate = null, staleIfError = null, tags = null, mustRevalidate = false } = headContext.cache;
 
             const directives = [];
-            if (maxAge === 0 && sMaxAge === null) directives.push('no-cache', 'no-store', 'must-revalidate');
+            if (app === 0 && cdn === null) directives.push('no-cache', 'no-store', 'must-revalidate');
             else {
               // If CDN cache is set, make it public; otherwise private
-              const isPublic = sMaxAge !== null;
+              const isPublic = cdn !== null;
               directives.push(isPublic ? 'public' : 'private');
-              if (maxAge > 0) directives.push(`max-age=${maxAge}`);
-              if (sMaxAge !== null) directives.push(`s-maxage=${sMaxAge}`);
+              if (app > 0) directives.push(`max-age=${app}`);
+              if (cdn !== null) directives.push(`s-maxage=${cdn}`);
               if (staleWhileRevalidate !== null) directives.push(`stale-while-revalidate=${staleWhileRevalidate}`);
               if (staleIfError !== null) directives.push(`stale-if-error=${staleIfError}`);
               if (mustRevalidate) directives.push('must-revalidate');
