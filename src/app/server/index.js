@@ -173,6 +173,7 @@ const headContext = {
   meta: [],
   links: [],
   scripts: [],
+  cache: null,
 };
 
 export function Head({ children }) {
@@ -219,7 +220,58 @@ function resetHeadContext() {
   headContext.meta = [];
   headContext.links = [];
   headContext.scripts = [];
+  headContext.cache = null;
 }
+
+export function getHeadContext() {
+  return headContext;
+}
+
+export function setCache(cacheConfig) {
+  headContext.cache = cacheConfig;
+}
+
+/**
+ * MilkStorage - Cache presets for common use cases
+ * Use with setCache() or in metadata.cache
+ *
+ * Simple syntax:
+ * cache: { app: 3600, cdn: 3600 }
+ *
+ * @example
+ * const metadata = {
+ *   title: 'Home',
+ *   cache: MilkStorage.medium
+ * };
+ *
+ * Or custom:
+ * cache: { app: 3600, cdn: 86400 }
+ */
+export const MilkStorage = {
+  // No caching - always fetch fresh
+  none: { app: 0 },
+  // Short cache - 5 minutes
+  short: { app: 300, cdn: 300 },
+  // Medium cache - 1 hour app, 6 hours CDN
+  medium: { app: 3600, cdn: 21600 },
+  // Long cache - 1 hour app, 1 day CDN
+  long: { app: 3600, cdn: 86400 },
+  // Static content - 1 day app, 1 week CDN
+  static: { app: 86400, cdn: 604800 },
+  // Dynamic with revalidation - serve stale while updating
+  revalidate: {
+    app: 60,
+    cdn: 3600,
+    staleWhileRevalidate: 86400,
+  },
+  // Resilient - serve stale on errors
+  resilient: {
+    app: 3600,
+    cdn: 86400,
+    staleWhileRevalidate: 86400,
+    staleIfError: 604800,
+  },
+};
 
 /**
  * html document template
@@ -243,7 +295,7 @@ async function Document({ content, language }) {
     const headElements = customHead({ context: headContext });
     headHtml = await renderToString(headElements);
   } else {
-    // Render meta tags as strings
+    // render meta tags as strings
     const metaTags = headContext.meta
       .map((m) => {
         const attrs = Object.entries(m)
@@ -401,13 +453,41 @@ export async function foxgirl(app, options = {}) {
           resetHeadContext();
           const language = c.get('language');
           const pageContent = component();
-          // Convert pageContent to string first before passing to Document
+          // convert pageContent to string first before passing to Document
           const contentHtml = await renderToString(pageContent);
           const html = await Document({ content: contentHtml, language });
-          // Return HTML response
-          return new Response(html, {
-            headers: { 'Content-Type': 'text/html; charset=utf-8' },
-          });
+          // Set cache headers if configured
+          const headers = { 'Content-Type': 'text/html; charset=utf-8' };
+          const isDev = globalThis.__ENVIRONMENT__ === 'development';
+
+          // Always set cache control headers
+          if (isDev) headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+          else if (headContext.cache) {
+            // Support both new (app/cdn) and traditional (maxAge/sMaxAge) syntax
+            const cache = headContext.cache;
+            const maxAge = cache.app ?? cache.maxAge ?? 0;
+            const sMaxAge = cache.cdn ?? cache.sMaxAge ?? null;
+            const { staleWhileRevalidate = null, staleIfError = null, tags = null, mustRevalidate = false } = cache;
+
+            const directives = [];
+            if (maxAge === 0 && sMaxAge === null) directives.push('no-cache', 'no-store', 'must-revalidate');
+            else {
+              // If CDN cache is set, make it public; otherwise private
+              const isPublic = sMaxAge !== null;
+              directives.push(isPublic ? 'public' : 'private');
+              if (maxAge > 0) directives.push(`max-age=${maxAge}`);
+              if (sMaxAge !== null) directives.push(`s-maxage=${sMaxAge}`);
+              if (staleWhileRevalidate !== null) directives.push(`stale-while-revalidate=${staleWhileRevalidate}`);
+              if (staleIfError !== null) directives.push(`stale-if-error=${staleIfError}`);
+              if (mustRevalidate) directives.push('must-revalidate');
+            }
+            headers['Cache-Control'] = directives.join(', ');
+            // cloudflare-specific: Cache tags for purging
+            if (tags && Array.isArray(tags)) headers['Cache-Tag'] = tags.join(',');
+            // add vary header for i18n if using explicit routing
+            if (globalI18nConfig?.explicitRouting) headers['Vary'] = 'Accept-Language';
+          } else headers['Cache-Control'] = 'private, no-cache';
+          return new Response(html, { headers });
         } catch (error) {
           console.error('Route error:', error);
           return c.text('Internal Server Error', 500);
