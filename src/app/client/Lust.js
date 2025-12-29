@@ -26,6 +26,14 @@ function isInLanguageRoute() {
  */
 export function Lust(props) {
   const { href, locale, prefetch, access, external, children, ...rest } = props;
+  if (!href) {
+    return {
+      type: 'a',
+      props: { ...rest, href: '#' },
+      children: Array.isArray(children) ? children : [children],
+    };
+  }
+
   const currentLanguage = getLanguage();
   const isExternal = external || href.startsWith('http') || href.startsWith('//');
 

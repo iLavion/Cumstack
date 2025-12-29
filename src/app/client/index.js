@@ -8,19 +8,11 @@ import { initComponents } from './components.js';
 import { initHMR } from './hmr.js';
 
 export { Lust } from './Lust.js';
+export { Image } from './Image.js';
 export { configureHydration, useRouter } from '../client.js';
-
-/**
- * get environment variable (client-side)
- * @param {string} key - environment variable name
- * @param {string} [fallback] - fallback value if not found
- * @returns {string|undefined} environment variable value
- */
-export function env(key, fallback) {
-  if (typeof window === 'undefined') return fallback;
-  const envVars = window.__ENV__ || {};
-  return envVars[key] ?? fallback;
-}
+export { api } from '../shared/api.js';
+export { cdn } from '../shared/cdn.js';
+export { env } from '../shared/env.js';
 
 /**
  * client entry wrapper component

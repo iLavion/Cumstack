@@ -14,10 +14,10 @@ const prefetchCache = new Set();
 function prefetchPage(href) {
   if (prefetchCache.has(href)) return;
   prefetchCache.add(href);
-  
-  fetch(href, { 
+
+  fetch(href, {
     method: 'GET',
-    headers: { 'X-Prefetch': 'true' }
+    headers: { 'X-Prefetch': 'true' },
   }).catch(() => {
     // silently fail, remove from cache so it can be retried
     prefetchCache.delete(href);
@@ -31,10 +31,14 @@ function prefetchPage(href) {
 function initPrefetch() {
   // handle hover prefetch
   document.querySelectorAll('a[data-prefetch="hover"]').forEach((link) => {
-    link.addEventListener('mouseenter', () => {
-      const href = link.getAttribute('href');
-      if (href && !href.startsWith('http') && !href.startsWith('//')) prefetchPage(href);
-    }, { once: false });
+    link.addEventListener(
+      'mouseenter',
+      () => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('http') && !href.startsWith('//')) prefetchPage(href);
+      },
+      { once: false }
+    );
   });
   // handle visible prefetch (intersection observer)
   const visibleLinks = document.querySelectorAll('a[data-prefetch="visible"]');
@@ -47,17 +51,20 @@ function initPrefetch() {
     });
     // create observer for each unique margin
     linksByMargin.forEach((links, margin) => {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const href = entry.target.getAttribute('href');
-            if (href && !href.startsWith('http') && !href.startsWith('//')) {
-              prefetchPage(href);
-              observer.unobserve(entry.target);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const href = entry.target.getAttribute('href');
+              if (href && !href.startsWith('http') && !href.startsWith('//')) {
+                prefetchPage(href);
+                observer.unobserve(entry.target);
+              }
             }
-          }
-        });
-      }, { rootMargin: margin });
+          });
+        },
+        { rootMargin: margin }
+      );
       links.forEach((link) => observer.observe(link));
     });
   }
