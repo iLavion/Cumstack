@@ -54,6 +54,17 @@ export async function renderToString(vnode) {
         if (v === false || v === null || v === undefined) return '';
         // Convert JSX attributes to HTML attributes
         const attrName = k === 'className' ? 'class' : k === 'htmlFor' ? 'for' : k;
+        // Handle style objects
+        if (k === 'style' && typeof v === 'object' && v !== null) {
+          const styleString = Object.entries(v)
+            .map(([prop, val]) => {
+              // Convert camelCase to kebab-case
+              const cssProp = prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+              return `${cssProp}: ${val}`;
+            })
+            .join('; ');
+          return `style="${styleString}"`;
+        }
         // Escape attribute values
         const escaped = String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
         return `${attrName}="${escaped}"`;
@@ -105,6 +116,17 @@ export async function renderToString(vnode) {
         if (v === false || v === null || v === undefined) return '';
         // Convert JSX attributes to HTML attributes
         const attrName = k === 'className' ? 'class' : k === 'htmlFor' ? 'for' : k;
+        // Handle style objects
+        if (k === 'style' && typeof v === 'object' && v !== null) {
+          const styleString = Object.entries(v)
+            .map(([prop, val]) => {
+              // Convert camelCase to kebab-case
+              const cssProp = prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+              return `${cssProp}: ${val}`;
+            })
+            .join('; ');
+          return `style="${styleString}"`;
+        }
         // Escape attribute values
         const escaped = String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
         return `${attrName}="${escaped}"`;
@@ -367,8 +389,11 @@ function detectLanguageFromRequest(request, config) {
   const url = new URL(request.url);
   // check url path first if explicit routing
   if (config.explicitRouting) {
-    const { language } = extractLanguageFromRoute(url.pathname);
-    if (language && config.supportedLanguages?.includes(language)) return language;
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+    // check if first segment is a language code
+    if (pathSegments.length > 0 && config.supportedLanguages?.includes(pathSegments[0])) {
+      return pathSegments[0];
+    }
   }
 
   // check accept-language header if auto-detection is enabled
@@ -452,6 +477,7 @@ export async function foxgirl(app, options = {}) {
         try {
           resetHeadContext();
           const language = c.get('language');
+          setLanguage(language);
           const pageContent = component();
           // convert pageContent to string first before passing to Document
           const contentHtml = await renderToString(pageContent);
@@ -521,13 +547,8 @@ export function getI18nConfig() {
   return globalI18nConfig;
 }
 
-/**
- * get environment variable (server-side only)
- * @param {string} key - environment variable name
- * @param {string} [fallback] - fallback value if not found
- * @returns {string|undefined} environment variable value
- */
-export function env(key, fallback) {
-  const envVars = globalThis.__ENV__ || {};
-  return envVars[key] ?? fallback;
-}
+// export utilities
+export { api } from '../shared/api.js';
+export { cdn } from '../shared/cdn.js';
+export { env } from '../shared/env.js';
+export { Image } from '../client/Image.js';
