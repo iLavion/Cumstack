@@ -61,12 +61,17 @@ export async function buildApp(appRoot, isDev = false, buildTimestamp = Date.now
               let subpath = args.path.replace('@cumstack/app', '');
               if (subpath === '/server') subpath = '/app/server/index.js';
               else if (subpath === '/client') subpath = '/app/client/index.js';
+              else if (subpath === '/shared') subpath = '/app/shared/index.js';
               else if (subpath === '/client/Lust') subpath = '/app/client/Lust.js';
+              else if (subpath === '/client/Image') subpath = '/app/client/Image.js';
               else if (subpath === '/shared/i18n') subpath = '/app/shared/i18n.js';
               else if (subpath === '/shared/reactivity') subpath = '/app/shared/reactivity.js';
               else if (subpath === '/shared/router') subpath = '/app/shared/router.js';
               else if (subpath === '/shared/utils') subpath = '/app/shared/utils.js';
               else if (subpath === '/shared/language-codes') subpath = '/app/shared/language-codes.js';
+              else if (subpath === '/shared/env') subpath = '/app/shared/env.js';
+              else if (subpath === '/shared/api') subpath = '/app/shared/api.js';
+              else if (subpath === '/shared/cdn') subpath = '/app/shared/cdn.js';
               else if (!subpath.endsWith('.js')) subpath += '.js';
               return {
                 path: path.join(__dirname, '..', 'src', subpath),

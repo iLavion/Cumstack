@@ -44,11 +44,12 @@ export function registerTranslations(lang, messages) {
     return;
   }
   translations.set(lang, messages);
+  //console.log(`[i18n] Registered translations for '${lang}':`, Object.keys(messages).slice(0, 10));
 }
 
 /**
  * get translation for a key
- * @param {string} key - Translation key
+ * @param {string} key - Translation key (supports dot notation for nested keys)
  * @param {Record<string, any>} params - Interpolation params
  * @returns {string}
  */
@@ -56,9 +57,22 @@ export function t(key, params = {}) {
   const lang = currentLanguage();
   const fallback = i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
   const messages = translations.get(lang) || translations.get(fallback) || {};
-  let message = messages[key] || key;
-  // interpolate params
-  Object.keys(params).forEach((param) => (message = message.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param])));
+  // support dot notation for nested keys
+  const keys = key.split('.');
+  let message = messages;
+  for (const k of keys) {
+    if (message && typeof message === 'object') message = message[k];
+    else {
+      message = undefined;
+      break;
+    }
+  }
+  // fallback to key if not found
+  if (message === undefined) return key;
+  // if message is a string, interpolate params
+  if (typeof message === 'string') {
+    Object.keys(params).forEach((param) => (message = message.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param])));
+  }
   return message;
 }
 
@@ -69,8 +83,10 @@ export function t(key, params = {}) {
  */
 export function setLanguage(lang, isExplicitRoute = false) {
   const supportedLanguages = getSupportedLanguages();
+  //console.log('[i18n] setLanguage called:', { lang, isExplicitRoute, supportedLanguages, isServer: typeof window === 'undefined' });
   if (supportedLanguages.includes(lang)) {
     setCurrentLanguage(lang);
+    //console.log('[i18n] Language set to:', lang, 'current is now:', currentLanguage());
     // store in localstorage if available
     if (typeof window !== 'undefined') {
       const pageKey = i18nConfiguration.storageKeys?.page || 'pLng';
@@ -82,6 +98,8 @@ export function setLanguage(lang, isExplicitRoute = false) {
       localStorage.setItem(userKey, lang);
       document.documentElement.lang = lang;
     }
+  } else {
+    //console.warn('[i18n] Language not supported:', lang, 'supported:', supportedLanguages);
   }
 }
 
@@ -268,5 +286,4 @@ export function getI18nConfiguration() {
   return i18nConfiguration;
 }
 
-export { currentLanguage };
-export { getLanguageName };
+export { currentLanguage, getLanguageName };

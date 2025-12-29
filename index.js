@@ -20,3 +20,8 @@ export {
 } from './src/app/shared/i18n.js';
 
 export { createMoan, onClimax, knotMemo, loadShot, batch, untrack, useLocation } from './src/app/shared/reactivity.js';
+
+// shared utilities
+export { env } from './src/app/shared/env.js';
+export { api } from './src/app/shared/api.js';
+export { cdn } from './src/app/shared/cdn.js';
