@@ -1,6 +1,6 @@
 {
   "name": "cumstack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A lightweight reactive framework with signals, routing, and i18n",
   "type": "module",
   "main": "index.js",
