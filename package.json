@@ -29,9 +29,9 @@
   ],
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
-    "hono": "^4.11.3",
+    "hono": "^4.11.4",
     "postcss": "^8.5.6",
-    "ws": "^8.18.3"
+    "ws": "^8.19.0"
   },
   "exports": {
     ".": "./index.js",
@@ -68,6 +68,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "prettier": "^3.7.4"
+    "prettier": "^3.8.0"
   }
 }
