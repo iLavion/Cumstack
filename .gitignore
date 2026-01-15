@@ -1,0 +1,23 @@
+# Development files
+node_modules/
+bun.lock
+
+# Build artifacts and cache
+.cache/
+dist/
+*.log
+
+# Development and testing
+packages/
+*.test.js
+*.spec.js
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
