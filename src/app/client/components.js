@@ -16,8 +16,8 @@ function prefetchPage(href) {
   prefetchCache.add(href);
 
   fetch(href, {
-    method: 'GET',
-    headers: { 'X-Prefetch': 'true' },
+    method: "GET",
+    headers: { "X-Prefetch": "true" },
   }).catch(() => {
     // silently fail, remove from cache so it can be retried
     prefetchCache.delete(href);
@@ -32,20 +32,20 @@ function initPrefetch() {
   // handle hover prefetch
   document.querySelectorAll('a[data-prefetch="hover"]').forEach((link) => {
     link.addEventListener(
-      'mouseenter',
+      "mouseenter",
       () => {
-        const href = link.getAttribute('href');
-        if (href && !href.startsWith('http') && !href.startsWith('//')) prefetchPage(href);
+        const href = link.getAttribute("href");
+        if (href && !href.startsWith("http") && !href.startsWith("//")) prefetchPage(href);
       },
-      { once: false }
+      { once: false },
     );
   });
   // handle visible prefetch (intersection observer)
   const visibleLinks = document.querySelectorAll('a[data-prefetch="visible"]');
-  if (visibleLinks.length > 0 && 'IntersectionObserver' in window) {
+  if (visibleLinks.length > 0 && "IntersectionObserver" in window) {
     const linksByMargin = new Map();
     visibleLinks.forEach((link) => {
-      const margin = link.getAttribute('prefetch-margin') || '0px';
+      const margin = link.getAttribute("prefetch-margin") || "0px";
       if (!linksByMargin.has(margin)) linksByMargin.set(margin, []);
       linksByMargin.get(margin).push(link);
     });
@@ -55,15 +55,15 @@ function initPrefetch() {
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              const href = entry.target.getAttribute('href');
-              if (href && !href.startsWith('http') && !href.startsWith('//')) {
+              const href = entry.target.getAttribute("href");
+              if (href && !href.startsWith("http") && !href.startsWith("//")) {
                 prefetchPage(href);
                 observer.unobserve(entry.target);
               }
             }
           });
         },
-        { rootMargin: margin }
+        { rootMargin: margin },
       );
       links.forEach((link) => observer.observe(link));
     });
@@ -84,8 +84,8 @@ export function initComponents() {
     let count = 0;
     const match = button.textContent.match(/Clicks: (\d+)/);
     if (match) count = parseInt(match[1]);
-    button.removeAttribute('onclick');
-    button.addEventListener('click', () => {
+    button.removeAttribute("onclick");
+    button.addEventListener("click", () => {
       count++;
       button.textContent = `Clicks: ${count}`;
     });
@@ -93,7 +93,7 @@ export function initComponents() {
 }
 
 // auto-initialize components on DOMContentLoaded
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initComponents);
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initComponents);
   else initComponents();
 }

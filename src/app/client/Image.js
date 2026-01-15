@@ -3,7 +3,7 @@
  * smart image component with CDN support
  */
 
-import { cdn } from '../shared/cdn.js';
+import { cdn } from "../shared/cdn.js";
 
 /**
  * Image component with optional CDN URL handling
@@ -20,21 +20,21 @@ import { cdn } from '../shared/cdn.js';
  * @returns {Object} Virtual DOM element
  */
 export function Image(props) {
-  const { src, alt, cdn: useCdn, className, style, loading = 'lazy', decoding = 'async', width, height, ...rest } = props;
+  const { src, alt, cdn: useCdn, className, style, loading = "lazy", decoding = "async", width, height, ...rest } = props;
   let finalSrc = src;
-  if (useCdn && src) if (src.startsWith('/')) finalSrc = cdn(src);
+  if (useCdn && src) if (src.startsWith("/")) finalSrc = cdn(src);
   const imgProps = {
     ...rest,
     src: finalSrc,
-    alt: alt || '',
+    alt: alt || "",
     ...(className && { class: className }),
     ...(style && {
       style:
-        typeof style === 'string'
+        typeof style === "string"
           ? style
           : Object.entries(style)
               .map(([k, v]) => `${k}: ${v}`)
-              .join('; '),
+              .join("; "),
     }),
     ...(loading && { loading }),
     ...(decoding && { decoding }),
@@ -42,7 +42,7 @@ export function Image(props) {
     ...(height && { height }),
   };
   return {
-    type: 'img',
+    type: "img",
     props: imgProps,
     children: [],
   };

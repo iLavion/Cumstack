@@ -19,22 +19,22 @@ export function createI18nMiddleware(config) {
 
     // check url path first if explicit routing
     if (config.explicitRouting) {
-      const pathSegments = url.pathname.split('/').filter(Boolean);
+      const pathSegments = url.pathname.split("/").filter(Boolean);
       if (pathSegments.length > 0 && config.supportedLanguages.includes(pathSegments[0])) language = pathSegments[0];
     }
 
     // check accept-language header if auto-detect
-    if (language === config.fallbackLng && config.defaultLng === 'auto') {
-      const acceptLang = c.req.header('accept-language');
+    if (language === config.fallbackLng && config.defaultLng === "auto") {
+      const acceptLang = c.req.header("accept-language");
       if (acceptLang) {
         const detected = acceptLang
-          .split(',')
-          .map((l) => l.split(';')[0].trim().split('-')[0])
+          .split(",")
+          .map((l) => l.split(";")[0].trim().split("-")[0])
           .find((l) => config.supportedLanguages.includes(l));
         if (detected) language = detected;
       }
     }
-    c.set('language', language);
+    c.set("language", language);
     await next();
   };
 }
@@ -52,9 +52,9 @@ export function createI18nMiddleware(config) {
  */
 export function createCorsMiddleware(options = {}) {
   const {
-    origin = '*',
-    methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders = ['Content-Type', 'Authorization'],
+    origin = "*",
+    methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders = ["Content-Type", "Authorization"],
     exposeHeaders = [],
     credentials = false,
     maxAge = 86400,
@@ -62,17 +62,17 @@ export function createCorsMiddleware(options = {}) {
 
   return async (c, next) => {
     // handle preflight
-    if (c.req.method === 'OPTIONS') {
+    if (c.req.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': origin,
-          'Access-Control-Allow-Methods': methods.join(', '),
-          'Access-Control-Allow-Headers': allowHeaders.join(', '),
-          'Access-Control-Max-Age': maxAge.toString(),
-          ...(credentials && { 'Access-Control-Allow-Credentials': 'true' }),
+          "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Methods": methods.join(", "),
+          "Access-Control-Allow-Headers": allowHeaders.join(", "),
+          "Access-Control-Max-Age": maxAge.toString(),
+          ...(credentials && { "Access-Control-Allow-Credentials": "true" }),
           ...(exposeHeaders.length && {
-            'Access-Control-Expose-Headers': exposeHeaders.join(', '),
+            "Access-Control-Expose-Headers": exposeHeaders.join(", "),
           }),
         },
       });
@@ -81,8 +81,8 @@ export function createCorsMiddleware(options = {}) {
     await next();
 
     // add cors headers to response
-    c.header('Access-Control-Allow-Origin', origin);
-    if (credentials) c.header('Access-Control-Allow-Credentials', 'true');
+    c.header("Access-Control-Allow-Origin", origin);
+    if (credentials) c.header("Access-Control-Allow-Credentials", "true");
   };
 }
 
@@ -95,10 +95,10 @@ export function createSecurityHeadersMiddleware() {
     await next();
 
     // security headers
-    c.header('X-Content-Type-Options', 'nosniff');
-    c.header('X-Frame-Options', 'DENY');
-    c.header('X-XSS-Protection', '1; mode=block');
-    c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("X-Frame-Options", "DENY");
+    c.header("X-XSS-Protection", "1; mode=block");
+    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   };
 }
 
@@ -132,16 +132,16 @@ export function createCacheMiddleware(options = {}) {
   return async (c, next) => {
     await next();
     const directives = [];
-    if (noStore) directives.push('no-store');
-    if (noCache) directives.push('no-cache');
-    if (isPublic) directives.push('public');
-    if (isPrivate) directives.push('private');
-    if (mustRevalidate) directives.push('must-revalidate');
+    if (noStore) directives.push("no-store");
+    if (noCache) directives.push("no-cache");
+    if (isPublic) directives.push("public");
+    if (isPrivate) directives.push("private");
+    if (mustRevalidate) directives.push("must-revalidate");
     if (maxAge !== undefined) directives.push(`max-age=${maxAge}`);
     if (sMaxAge !== undefined) directives.push(`s-maxage=${sMaxAge}`);
     if (staleWhileRevalidate !== undefined) directives.push(`stale-while-revalidate=${staleWhileRevalidate}`);
     if (staleIfError !== undefined) directives.push(`stale-if-error=${staleIfError}`);
-    if (directives.length > 0) c.header('Cache-Control', directives.join(', '));
+    if (directives.length > 0) c.header("Cache-Control", directives.join(", "));
   };
 }
 
@@ -152,9 +152,9 @@ export function createCacheMiddleware(options = {}) {
 export function createCompressionMiddleware() {
   return async (c, next) => {
     await next();
-    const acceptEncoding = c.req.header('accept-encoding') || '';
-    if (acceptEncoding.includes('gzip')) c.header('Content-Encoding', 'gzip');
-    else if (acceptEncoding.includes('deflate')) c.header('Content-Encoding', 'deflate');
+    const acceptEncoding = c.req.header("accept-encoding") || "";
+    if (acceptEncoding.includes("gzip")) c.header("Content-Encoding", "gzip");
+    else if (acceptEncoding.includes("deflate")) c.header("Content-Encoding", "deflate");
   };
 }
 
@@ -186,7 +186,7 @@ export function createRateLimitMiddleware(options = {}) {
   const {
     windowMs = 60000, // 1 minute
     max = 60, // 60 requests per window
-    keyGenerator = (c) => c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown',
+    keyGenerator = (c) => c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
   } = options;
 
   const requests = new Map();
@@ -208,12 +208,12 @@ export function createRateLimitMiddleware(options = {}) {
     entry.count++;
 
     // check limit
-    if (entry.count > max) return c.text('Too Many Requests', 429);
+    if (entry.count > max) return c.text("Too Many Requests", 429);
 
     // rate limit headers
-    c.header('X-RateLimit-Limit', max.toString());
-    c.header('X-RateLimit-Remaining', (max - entry.count).toString());
-    c.header('X-RateLimit-Reset', new Date(entry.resetTime + windowMs).toISOString());
+    c.header("X-RateLimit-Limit", max.toString());
+    c.header("X-RateLimit-Remaining", (max - entry.count).toString());
+    c.header("X-RateLimit-Reset", new Date(entry.resetTime + windowMs).toISOString());
 
     await next();
   };
@@ -227,17 +227,17 @@ export function createRateLimitMiddleware(options = {}) {
  * @returns {Response} JSON error response
  */
 export function errorResponse(c, error, status = 500) {
-  console.error('Error:', error);
-  const isDev = globalThis.__ENVIRONMENT__ === 'development';
+  console.error("Error:", error);
+  const isDev = globalThis.__ENVIRONMENT__ === "development";
   return c.json(
     {
       error: {
-        message: error.message || 'Internal Server Error',
+        message: error.message || "Internal Server Error",
         status,
         ...(isDev && { stack: error.stack }),
       },
     },
-    status
+    status,
   );
 }
 
@@ -254,7 +254,7 @@ export function successResponse(c, data, status = 200) {
       success: true,
       data,
     },
-    status
+    status,
   );
 }
 
@@ -278,15 +278,15 @@ export function redirect(c, location, status = 302) {
 export async function streamHTML(c, generator) {
   const stream = new ReadableStream({
     async start(controller) {
-      controller.enqueue(new TextEncoder().encode('<!DOCTYPE html>'));
+      controller.enqueue(new TextEncoder().encode("<!DOCTYPE html>"));
       for await (const chunk of generator()) controller.enqueue(new TextEncoder().encode(chunk));
       controller.close();
     },
   });
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Transfer-Encoding': 'chunked',
+      "Content-Type": "text/html; charset=utf-8",
+      "Transfer-Encoding": "chunked",
     },
   });
 }

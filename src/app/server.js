@@ -3,10 +3,10 @@
  * server-side rendering with hono
  */
 
-import { Hono } from 'hono';
-import { renderToString } from './server/jsx.js';
-import { h } from './server/jsx.js';
-import { initI18n, setLanguage, extractLanguageFromRoute } from './shared/i18n.js';
+import { Hono } from "hono";
+import { renderToString } from "./server/jsx.js";
+import { h } from "./server/jsx.js";
+import { initI18n, setLanguage, extractLanguageFromRoute } from "./shared/i18n.js";
 
 /**
  * escape html to prevent xss
@@ -14,8 +14,8 @@ import { initI18n, setLanguage, extractLanguageFromRoute } from './shared/i18n.j
  * @returns {string} Escaped string
  */
 function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  if (!str) return "";
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 /**
@@ -48,19 +48,19 @@ function detectLanguageFromRequest(request, config) {
   }
 
   // check accept-language header
-  if (config.defaultLng === 'auto') {
-    const acceptLang = request.headers.get('accept-language');
+  if (config.defaultLng === "auto") {
+    const acceptLang = request.headers.get("accept-language");
     if (acceptLang) {
       const detectedLang = acceptLang
-        .split(',')
-        .map((l) => l.split(';')[0].trim().split('-')[0])
+        .split(",")
+        .map((l) => l.split(";")[0].trim().split("-")[0])
         .find((l) => config.supportedLanguages.includes(l));
       if (detectedLang) return detectedLang;
     }
   }
 
   // use default or fallback
-  return config.defaultLng === 'auto' ? config.fallbackLng : config.defaultLng;
+  return config.defaultLng === "auto" ? config.fallbackLng : config.defaultLng;
 }
 
 /**
@@ -76,7 +76,7 @@ export function Router({ i18nOpt, children }) {
     // initialize i18n on server
     if (!serverContext.initialized) {
       initI18n({
-        defaultLanguage: i18nOpt.defaultLng || i18nOpt.fallbackLng || 'en',
+        defaultLanguage: i18nOpt.defaultLng || i18nOpt.fallbackLng || "en",
         detectBrowser: false,
       });
       serverContext.initialized = true;
@@ -127,7 +127,7 @@ export function FoxgirlCreampie({ children }) {
  * @param {string} [props.appName] - Application name
  * @returns {Object} JSX element
  */
-function Document({ content, language, theme = 'dark', scripts = [], styles = [], appName = 'cumstack App' }) {
+function Document({ content, language, theme = "dark", scripts = [], styles = [], appName = "cumstack App" }) {
   // sanitize data for json embedding to prevent xss
   const sanitizedData = {
     language: escapeHtml(language),
@@ -135,29 +135,29 @@ function Document({ content, language, theme = 'dark', scripts = [], styles = []
   };
 
   return h(
-    'html',
+    "html",
     { lang: language },
     h(
-      'head',
+      "head",
       {},
-      h('meta', { charset: 'utf-8' }),
-      h('meta', {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      })
+      h("meta", { charset: "utf-8" }),
+      h("meta", {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      }),
     ),
     h(
-      'body',
-      { className: `theme-${theme}`, style: 'margin: 0; padding: 0' },
-      h('div', { id: 'app', 'data-cumstack-ssr': 'true', innerHTML: content }),
-      h('script', {
-        id: 'cumstack-data',
-        type: 'application/json',
+      "body",
+      { className: `theme-${theme}`, style: "margin: 0; padding: 0" },
+      h("div", { id: "app", "data-cumstack-ssr": "true", innerHTML: content }),
+      h("script", {
+        id: "cumstack-data",
+        type: "application/json",
         innerHTML: JSON.stringify(sanitizedData),
       }),
-      h('script', { type: 'module', src: '/main.client.js' }),
-      ...scripts.map((src) => h('script', { type: 'module', src }))
-    )
+      h("script", { type: "module", src: "/main.client.js" }),
+      ...scripts.map((src) => h("script", { type: "module", src })),
+    ),
   );
 }
 
@@ -172,7 +172,7 @@ function matchAndRenderRoute(pathname, language) {
   let cleanPath = pathname;
   if (serverContext.i18nConfig?.explicitRouting) {
     const { path } = extractLanguageFromRoute(pathname);
-    cleanPath = path || '/';
+    cleanPath = path || "/";
   }
 
   // try exact match first
@@ -186,16 +186,16 @@ function matchAndRenderRoute(pathname, language) {
 
   // try wildcard match with param extraction
   for (const [pattern, component] of serverContext.routeRegistry.entries()) {
-    if (pattern.includes(':') || pattern === '*') {
+    if (pattern.includes(":") || pattern === "*") {
       // extract parameter names
       const paramNames = [];
       const regexPattern = pattern
         .replace(/:(\w+)/g, (_, name) => {
           paramNames.push(name);
-          return '([^/]+)';
+          return "([^/]+)";
         })
-        .replace('*', '(.*)');
-      const regex = new RegExp('^' + regexPattern + '$');
+        .replace("*", "(.*)");
+      const regex = new RegExp("^" + regexPattern + "$");
       const match = cleanPath.match(regex);
       if (match) {
         // extract params
@@ -209,11 +209,11 @@ function matchAndRenderRoute(pathname, language) {
   // 404
   return {
     content: h(
-      'div',
-      { className: 'page not-found' },
-      h('h1', {}, '404 - Not Found'),
-      h('p', {}, 'The page you are looking for does not exist'),
-      h('a', { href: '/' }, 'Go Home')
+      "div",
+      { className: "page not-found" },
+      h("h1", {}, "404 - Not Found"),
+      h("p", {}, "The page you are looking for does not exist"),
+      h("a", { href: "/" }, "Go Home"),
     ),
     params: {},
   };
@@ -234,29 +234,29 @@ function matchAndRenderRoute(pathname, language) {
 export function foxgirl(app, options = {}) {
   serverContext = createServerContext();
   const honoApp = new Hono();
-  const { appName = 'cumstack App', theme = 'dark', scripts = [], styles = [] } = options;
+  const { appName = "cumstack App", theme = "dark", scripts = [], styles = [] } = options;
   app();
   // middleware: set request context (avoid global pollution)
-  honoApp.use('*', async (c, next) => {
+  honoApp.use("*", async (c, next) => {
     // store env in request context instead of global
-    c.set('deployment', c.env?.CF_VERSION_METADATA ?? null);
-    c.set('env', c.env ?? {});
-    c.set('environment', c.env?.ENVIRONMENT ?? 'development');
+    c.set("deployment", c.env?.CF_VERSION_METADATA ?? null);
+    c.set("env", c.env ?? {});
+    c.set("environment", c.env?.ENVIRONMENT ?? "development");
     await next();
   });
-  if (options.middlewares && typeof options.middlewares === 'function') options.middlewares(honoApp);
-  honoApp.use('*', async (c, next) => {
+  if (options.middlewares && typeof options.middlewares === "function") options.middlewares(honoApp);
+  honoApp.use("*", async (c, next) => {
     const language = detectLanguageFromRequest(
       c.req.raw,
       serverContext.i18nConfig || {
-        supportedLanguages: ['en'],
+        supportedLanguages: ["en"],
         explicitRouting: false,
-        defaultLng: 'en',
-        fallbackLng: 'en',
-      }
+        defaultLng: "en",
+        fallbackLng: "en",
+      },
     );
     setLanguage(language);
-    c.set('language', language);
+    c.set("language", language);
     await next();
   });
   // register all routes with hono
@@ -266,8 +266,8 @@ export function foxgirl(app, options = {}) {
     const patterns = [];
     if (serverContext.i18nConfig?.explicitRouting) {
       serverContext.i18nConfig.supportedLanguages.forEach((lang) => {
-        patterns.push(`/${lang}${path === '/' ? '' : path}`);
-        if (path === '/') patterns.push(`/${lang}`);
+        patterns.push(`/${lang}${path === "/" ? "" : path}`);
+        if (path === "/") patterns.push(`/${lang}`);
       });
     }
     patterns.push(path);
@@ -276,10 +276,10 @@ export function foxgirl(app, options = {}) {
         registeredPatterns.add(pattern);
         honoApp.get(pattern, async (c) => {
           try {
-            const language = c.get('language');
+            const language = c.get("language");
             const url = new URL(c.req.url);
             const { content, params } = matchAndRenderRoute(url.pathname, language);
-            const appContent = h('div', { className: 'app-root' }, content);
+            const appContent = h("div", { className: "app-root" }, content);
             const html = renderToString(
               Document({
                 title: appName,
@@ -289,10 +289,10 @@ export function foxgirl(app, options = {}) {
                 scripts,
                 styles,
                 appName,
-              })
+              }),
             );
-            const response = c.html('<!DOCTYPE html>' + html);
-            response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+            const response = c.html("<!DOCTYPE html>" + html);
+            response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
             return response;
           } catch (error) {
             console.error(`Route error [${c.req.method} ${c.req.url}]:`, error);
@@ -303,7 +303,7 @@ export function foxgirl(app, options = {}) {
                 <body>
                   <h1>Internal Server Error</h1>
                   <p>An error occurred while processing your request.</p>
-                  ${c.get('environment') !== 'production' ? `<pre>${escapeHtml(error.stack)}</pre>` : ''}
+                  ${c.get("environment") !== "production" ? `<pre>${escapeHtml(error.stack)}</pre>` : ""}
                 </body>
               </html>
             `;
@@ -313,27 +313,27 @@ export function foxgirl(app, options = {}) {
       }
     });
   }
-  if (options.routes && typeof options.routes === 'function') options.routes(honoApp);
+  if (options.routes && typeof options.routes === "function") options.routes(honoApp);
   // 404 handler
   honoApp.notFound((c) => {
-    const language = c.get('language') || 'en';
+    const language = c.get("language") || "en";
     const notFoundContent = h(
-      'div',
-      { className: 'page not-found' },
-      h('h1', {}, '404 - Not Found'),
-      h('p', {}, 'The page you are looking for does not exist'),
-      h('a', { href: '/' }, 'Go Home')
+      "div",
+      { className: "page not-found" },
+      h("h1", {}, "404 - Not Found"),
+      h("p", {}, "The page you are looking for does not exist"),
+      h("a", { href: "/" }, "Go Home"),
     );
     const html = renderToString(
       Document({
-        title: '404 - Not Found',
+        title: "404 - Not Found",
         content: renderToString(notFoundContent),
         language,
         theme,
         appName,
-      })
+      }),
     );
-    return c.html('<!DOCTYPE html>' + html, 404);
+    return c.html("<!DOCTYPE html>" + html, 404);
   });
 
   // error handler
@@ -346,7 +346,7 @@ export function foxgirl(app, options = {}) {
         <body>
           <h1>Internal Server Error</h1>
           <p>An unexpected error occurred.</p>
-          ${c.get('environment') !== 'production' ? `<pre>${escapeHtml(err.stack || err.message)}</pre>` : ''}
+          ${c.get("environment") !== "production" ? `<pre>${escapeHtml(err.stack || err.message)}</pre>` : ""}
         </body>
       </html>
     `;

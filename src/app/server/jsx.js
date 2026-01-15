@@ -10,7 +10,7 @@
  * @param {...any} children - Child elements
  */
 export function h(type, props, ...children) {
-  if (typeof type === 'function') return type({ ...props, children });
+  if (typeof type === "function") return type({ ...props, children });
   return {
     type,
     props: props || {},
@@ -32,7 +32,7 @@ export function Fragment({ children }) {
  */
 export function render(vnode, container) {
   // clear container
-  container.innerHTML = '';
+  container.innerHTML = "";
   const element = createDOMElement(vnode);
   if (element) {
     container.appendChild(element);
@@ -48,7 +48,7 @@ function createDOMElement(vnode) {
   // handle null/undefined
   if (vnode == null || vnode === false) return null;
   // handle text nodes
-  if (typeof vnode === 'string' || typeof vnode === 'number') return document.createTextNode(String(vnode));
+  if (typeof vnode === "string" || typeof vnode === "number") return document.createTextNode(String(vnode));
   // handle arrays
   if (Array.isArray(vnode)) {
     const fragment = document.createDocumentFragment();
@@ -64,9 +64,9 @@ function createDOMElement(vnode) {
   const element = document.createElement(vnode.type);
   // set props
   Object.entries(vnode.props || {}).forEach(([key, value]) => {
-    if (key === 'className') element.className = value;
-    else if (key === 'style' && typeof value === 'object') Object.assign(element.style, value);
-    else if (key.startsWith('on') && typeof value === 'function') {
+    if (key === "className") element.className = value;
+    else if (key === "style" && typeof value === "object") Object.assign(element.style, value);
+    else if (key.startsWith("on") && typeof value === "function") {
       const eventName = key.slice(2).toLowerCase();
       element.addEventListener(eventName, value);
     } else if (value != null && value !== false) element.setAttribute(key, value);
@@ -86,44 +86,44 @@ function createDOMElement(vnode) {
  */
 export function renderToString(vnode) {
   // handle null/undefined
-  if (vnode == null || vnode === false) return '';
+  if (vnode == null || vnode === false) return "";
   // handle text nodes
-  if (typeof vnode === 'string' || typeof vnode === 'number') return escapeHtml(String(vnode));
+  if (typeof vnode === "string" || typeof vnode === "number") return escapeHtml(String(vnode));
   // handle arrays
-  if (Array.isArray(vnode)) return vnode.map(renderToString).join('');
+  if (Array.isArray(vnode)) return vnode.map(renderToString).join("");
   // handle components (already rendered) - but prevent infinite recursion
   if (!vnode.type) {
     // if it's an object without type, try to extract meaningful content
-    if (typeof vnode === 'object') {
+    if (typeof vnode === "object") {
       // check for children property
       if (vnode.children !== undefined) return renderToString(vnode.children);
       // check for props.children
       if (vnode.props?.children !== undefined) return renderToString(vnode.props.children);
       // unknown structure - return empty
-      console.warn('renderToString: Unknown vnode structure', vnode);
-      return '';
+      console.warn("renderToString: Unknown vnode structure", vnode);
+      return "";
     }
-    return '';
+    return "";
   }
   // self-closing tags
-  const selfClosing = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+  const selfClosing = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
   // build attributes
   const attrs = Object.entries(vnode.props || {})
-    .filter(([key, value]) => !key.startsWith('on') && value != null && value !== false)
+    .filter(([key, value]) => !key.startsWith("on") && value != null && value !== false)
     .map(([key, value]) => {
-      const attrName = key === 'className' ? 'class' : key;
-      if (typeof value === 'object' && key === 'style') {
+      const attrName = key === "className" ? "class" : key;
+      if (typeof value === "object" && key === "style") {
         const styleStr = Object.entries(value)
           .map(([k, v]) => `${k}: ${v}`)
-          .join('; ');
+          .join("; ");
         return `${attrName}="${escapeHtml(styleStr)}"`;
       }
       return `${attrName}="${escapeHtml(String(value))}"`;
     })
-    .join(' ');
+    .join(" ");
   const openTag = attrs ? `<${vnode.type} ${attrs}>` : `<${vnode.type}>`;
-  if (selfClosing.includes(vnode.type)) return openTag.replace('>', ' />');
-  const children = (vnode.children || []).map(renderToString).join('');
+  if (selfClosing.includes(vnode.type)) return openTag.replace(">", " />");
+  const children = (vnode.children || []).map(renderToString).join("");
   return `${openTag}${children}</${vnode.type}>`;
 }
 
@@ -134,11 +134,11 @@ export function renderToString(vnode) {
  */
 function escapeHtml(str) {
   const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
   };
   return str.replace(/[&<>"']/g, (char) => map[char]);
 }

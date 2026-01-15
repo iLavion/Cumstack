@@ -3,8 +3,8 @@
  * built-in internationalization support
  */
 
-import { createMoan } from './reactivity.js';
-import { isValidLanguageCode, getLanguageName } from './language-codes.js';
+import { createMoan } from "./reactivity.js";
+import { isValidLanguageCode, getLanguageName } from "./language-codes.js";
 
 // translation store
 const translations = new Map();
@@ -14,8 +14,8 @@ let i18nConfiguration = {
   defaultLanguage: null,
   fallbackLanguage: null,
   storageKeys: {
-    page: 'pLng',
-    user: 'uLng',
+    page: "pLng",
+    user: "uLng",
   },
 };
 let [currentLanguage, setCurrentLanguage] = createMoan(null);
@@ -58,10 +58,10 @@ export function t(key, params = {}) {
   const fallback = i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
   const messages = translations.get(lang) || translations.get(fallback) || {};
   // support dot notation for nested keys
-  const keys = key.split('.');
+  const keys = key.split(".");
   let message = messages;
   for (const k of keys) {
-    if (message && typeof message === 'object') message = message[k];
+    if (message && typeof message === "object") message = message[k];
     else {
       message = undefined;
       break;
@@ -70,8 +70,8 @@ export function t(key, params = {}) {
   // fallback to key if not found
   if (message === undefined) return key;
   // if message is a string, interpolate params
-  if (typeof message === 'string') {
-    Object.keys(params).forEach((param) => (message = message.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param])));
+  if (typeof message === "string") {
+    Object.keys(params).forEach((param) => (message = message.replace(new RegExp(`\\{${param}\\}`, "g"), params[param])));
   }
   return message;
 }
@@ -88,10 +88,10 @@ export function setLanguage(lang, isExplicitRoute = false) {
     setCurrentLanguage(lang);
     //console.log('[i18n] Language set to:', lang, 'current is now:', currentLanguage());
     // store in localstorage if available
-    if (typeof window !== 'undefined') {
-      const pageKey = i18nConfiguration.storageKeys?.page || 'pLng';
-      const userKey = i18nConfiguration.storageKeys?.user || 'uLng';
-      localStorage.setItem('language', lang);
+    if (typeof window !== "undefined") {
+      const pageKey = i18nConfiguration.storageKeys?.page || "pLng";
+      const userKey = i18nConfiguration.storageKeys?.user || "uLng";
+      localStorage.setItem("language", lang);
       // if it's an explicit route, store as preferred language
       if (isExplicitRoute) localStorage.setItem(pageKey, lang);
       // always update user language
@@ -126,13 +126,13 @@ export function getTranslations(lang = null) {
  * @returns {string}
  */
 export function detectBrowserLanguage() {
-  if (typeof window === 'undefined') return i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
+  if (typeof window === "undefined") return i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
   const supportedLanguages = getSupportedLanguages();
   // check localstorage first
-  const stored = localStorage.getItem('language');
+  const stored = localStorage.getItem("language");
   if (stored && supportedLanguages.includes(stored)) return stored;
   // check navigator language
-  const browserLang = navigator.language.split('-')[0];
+  const browserLang = navigator.language.split("-")[0];
   return supportedLanguages.includes(browserLang) ? browserLang : i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
 }
 
@@ -141,9 +141,9 @@ export function detectBrowserLanguage() {
  * @returns {string|null}
  */
 export function getUserLanguage() {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   const supportedLanguages = getSupportedLanguages();
-  const userKey = i18nConfiguration.storageKeys?.user || 'uLng';
+  const userKey = i18nConfiguration.storageKeys?.user || "uLng";
   const userLang = localStorage.getItem(userKey);
   return userLang && supportedLanguages.includes(userLang) ? userLang : null;
 }
@@ -153,9 +153,9 @@ export function getUserLanguage() {
  * @returns {string|null}
  */
 export function getPreferredLanguage() {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   const supportedLanguages = getSupportedLanguages();
-  const pageKey = i18nConfiguration.storageKeys?.page || 'pLng';
+  const pageKey = i18nConfiguration.storageKeys?.page || "pLng";
   const prefLang = localStorage.getItem(pageKey);
   return prefLang && supportedLanguages.includes(prefLang) ? prefLang : null;
 }
@@ -166,16 +166,16 @@ export function getPreferredLanguage() {
  */
 export function setPreferredLanguage(lang) {
   const supportedLanguages = getSupportedLanguages();
-  const pageKey = i18nConfiguration.storageKeys?.page || 'pLng';
-  if (typeof window !== 'undefined' && supportedLanguages.includes(lang)) localStorage.setItem(pageKey, lang);
+  const pageKey = i18nConfiguration.storageKeys?.page || "pLng";
+  if (typeof window !== "undefined" && supportedLanguages.includes(lang)) localStorage.setItem(pageKey, lang);
 }
 
 /**
  * clear preferred language from localstorage
  */
 export function clearPreferredLanguage() {
-  if (typeof window !== 'undefined') {
-    const pageKey = i18nConfiguration.storageKeys?.page || 'pLng';
+  if (typeof window !== "undefined") {
+    const pageKey = i18nConfiguration.storageKeys?.page || "pLng";
     localStorage.removeItem(pageKey);
   }
 }
@@ -200,8 +200,8 @@ export function initI18n(options = {}) {
     defaultLanguage: options.defaultLanguage || options.defaultLng || null,
     fallbackLanguage: options.fallbackLanguage || options.fallbackLng || null,
     storageKeys: {
-      page: options.storageKeys?.page || options.storageKeys?.preferred || 'pLng',
-      user: options.storageKeys?.user || 'uLng',
+      page: options.storageKeys?.page || options.storageKeys?.preferred || "pLng",
+      user: options.storageKeys?.user || "uLng",
     },
   };
   const supportedLanguages = getSupportedLanguages();
@@ -210,10 +210,10 @@ export function initI18n(options = {}) {
   const { detectBrowser = true } = options;
   let initialLang = fallbackLang;
   // handle 'auto' detection or browser detection
-  if (configDefaultLang === 'auto' || (detectBrowser && typeof window !== 'undefined')) initialLang = detectBrowserLanguage();
-  else if (configDefaultLang && configDefaultLang !== 'auto') initialLang = configDefaultLang;
+  if (configDefaultLang === "auto" || (detectBrowser && typeof window !== "undefined")) initialLang = detectBrowserLanguage();
+  else if (configDefaultLang && configDefaultLang !== "auto") initialLang = configDefaultLang;
   setCurrentLanguage(initialLang);
-  if (typeof window !== 'undefined') document.documentElement.lang = initialLang;
+  if (typeof window !== "undefined") document.documentElement.lang = initialLang;
   return {
     language: currentLanguage,
     setLanguage,
@@ -231,7 +231,7 @@ export function localizeRoute(path, lang = null) {
   const language = lang || currentLanguage();
   const defaultLang = i18nConfiguration.fallbackLanguage || getSupportedLanguages()[0];
   if (!i18nConfiguration.explicitRouting && language === defaultLang) return path;
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `/${language}${normalizedPath}`;
 }
 
@@ -241,12 +241,12 @@ export function localizeRoute(path, lang = null) {
  * @returns {{ language: string, path: string }}
  */
 export function extractLanguageFromRoute(path) {
-  const segments = path.split('/').filter(Boolean);
+  const segments = path.split("/").filter(Boolean);
   const supportedLanguages = getSupportedLanguages();
   if (segments.length > 0 && supportedLanguages.includes(segments[0])) {
     return {
       language: segments[0],
-      path: '/' + segments.slice(1).join('/'),
+      path: "/" + segments.slice(1).join("/"),
     };
   }
   return {
@@ -262,7 +262,7 @@ export function extractLanguageFromRoute(path) {
  */
 export function createLanguageSwitcher(navigate) {
   return (lang) => {
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
     const { path } = extractLanguageFromRoute(currentPath);
     const newPath = localizeRoute(path, lang);
     setLanguage(lang);

@@ -3,9 +3,9 @@
  * server-side rendering with hono
  */
 
-import { Hono } from 'hono';
-import { setLanguage, extractLanguageFromRoute } from '../shared/i18n.js';
-import { raw } from 'hono/html';
+import { Hono } from "hono";
+import { setLanguage, extractLanguageFromRoute } from "../shared/i18n.js";
+import { raw } from "hono/html";
 
 const routeRegistry = new Map();
 let globalI18nConfig = null;
@@ -16,32 +16,32 @@ let honoApp = null;
  * Handles both Hono JSX nodes and cumstack's plain object format
  */
 export async function renderToString(vnode) {
-  if (vnode === null || vnode === undefined) return '';
-  if (typeof vnode === 'string') return vnode;
-  if (typeof vnode === 'number') return String(vnode);
-  if (typeof vnode === 'boolean') return '';
+  if (vnode === null || vnode === undefined) return "";
+  if (typeof vnode === "string") return vnode;
+  if (typeof vnode === "number") return String(vnode);
+  if (typeof vnode === "boolean") return "";
 
   // Handle Hono HTML strings (String objects with isEscaped property)
   // These are the pre-rendered strings that Hono JSX produces
-  if (vnode && typeof vnode === 'object' && vnode instanceof String) {
+  if (vnode && typeof vnode === "object" && vnode instanceof String) {
     const htmlString = vnode.toString();
     // Convert className to class since Hono doesn't do this
-    const fixedHtml = htmlString.replace(/\sclassName=/g, ' class=');
+    const fixedHtml = htmlString.replace(/\sclassName=/g, " class=");
     return fixedHtml;
   }
 
   // Handle arrays
   if (Array.isArray(vnode)) {
     const results = await Promise.all(vnode.map((child) => renderToString(child)));
-    return results.join('');
+    return results.join("");
   }
 
   // For plain objects from cumstack components (like Lust)
-  if (vnode && typeof vnode === 'object' && vnode.type && vnode.props !== undefined && !vnode.toStringToBuffer) {
+  if (vnode && typeof vnode === "object" && vnode.type && vnode.props !== undefined && !vnode.toStringToBuffer) {
     const { type, props, children } = vnode;
 
     // Handle function components - call them
-    if (typeof type === 'function') {
+    if (typeof type === "function") {
       const result = type({ ...props, children });
       return await renderToString(result);
     }
@@ -49,28 +49,28 @@ export async function renderToString(vnode) {
     // Render as HTML element
     const attrs = Object.entries(props || {})
       .map(([k, v]) => {
-        if (k === 'children' || k === 'dangerouslySetInnerHTML') return '';
+        if (k === "children" || k === "dangerouslySetInnerHTML") return "";
         if (v === true) return k;
-        if (v === false || v === null || v === undefined) return '';
+        if (v === false || v === null || v === undefined) return "";
         // Convert JSX attributes to HTML attributes
-        const attrName = k === 'className' ? 'class' : k === 'htmlFor' ? 'for' : k;
+        const attrName = k === "className" ? "class" : k === "htmlFor" ? "for" : k;
         // Handle style objects
-        if (k === 'style' && typeof v === 'object' && v !== null) {
+        if (k === "style" && typeof v === "object" && v !== null) {
           const styleString = Object.entries(v)
             .map(([prop, val]) => {
               // Convert camelCase to kebab-case
-              const cssProp = prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+              const cssProp = prop.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
               return `${cssProp}: ${val}`;
             })
-            .join('; ');
+            .join("; ");
           return `style="${styleString}"`;
         }
         // Escape attribute values
-        const escaped = String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        const escaped = String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
         return `${attrName}="${escaped}"`;
       })
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
 
     const openTag = attrs ? `<${type} ${attrs}>` : `<${type}>`;
 
@@ -80,8 +80,8 @@ export async function renderToString(vnode) {
     }
 
     // Self-closing tags
-    if (['img', 'br', 'hr', 'input', 'meta', 'link'].includes(type)) {
-      return `<${type}${attrs ? ' ' + attrs : ''} />`;
+    if (["img", "br", "hr", "input", "meta", "link"].includes(type)) {
+      return `<${type}${attrs ? " " + attrs : ""} />`;
     }
 
     const childrenHtml = await renderToString(children);
@@ -89,7 +89,7 @@ export async function renderToString(vnode) {
   }
 
   // For Hono JSX nodes - convert to plain HTML manually to avoid the str.search bug
-  if (vnode && typeof vnode === 'object' && (vnode.tag !== undefined || vnode.toStringToBuffer)) {
+  if (vnode && typeof vnode === "object" && (vnode.tag !== undefined || vnode.toStringToBuffer)) {
     // This is a Hono JSX node - manually convert to HTML instead of using toString()
     // to avoid the bug where non-string values cause errors in escapeToBuffer
 
@@ -98,12 +98,12 @@ export async function renderToString(vnode) {
     const children = vnode.children || [];
 
     // Handle fragments
-    if (!tag || tag === '') {
+    if (!tag || tag === "") {
       return await renderToString(children);
     }
 
     // Handle function components
-    if (typeof tag === 'function') {
+    if (typeof tag === "function") {
       const result = tag(props);
       return await renderToString(result);
     }
@@ -111,28 +111,28 @@ export async function renderToString(vnode) {
     // Build attributes
     const attrs = Object.entries(props)
       .map(([k, v]) => {
-        if (k === 'children' || k === 'dangerouslySetInnerHTML') return '';
+        if (k === "children" || k === "dangerouslySetInnerHTML") return "";
         if (v === true) return k;
-        if (v === false || v === null || v === undefined) return '';
+        if (v === false || v === null || v === undefined) return "";
         // Convert JSX attributes to HTML attributes
-        const attrName = k === 'className' ? 'class' : k === 'htmlFor' ? 'for' : k;
+        const attrName = k === "className" ? "class" : k === "htmlFor" ? "for" : k;
         // Handle style objects
-        if (k === 'style' && typeof v === 'object' && v !== null) {
+        if (k === "style" && typeof v === "object" && v !== null) {
           const styleString = Object.entries(v)
             .map(([prop, val]) => {
               // Convert camelCase to kebab-case
-              const cssProp = prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+              const cssProp = prop.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
               return `${cssProp}: ${val}`;
             })
-            .join('; ');
+            .join("; ");
           return `style="${styleString}"`;
         }
         // Escape attribute values
-        const escaped = String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        const escaped = String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
         return `${attrName}="${escaped}"`;
       })
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
 
     // Handle dangerous HTML
     if (props.dangerouslySetInnerHTML && props.dangerouslySetInnerHTML.__html) {
@@ -141,8 +141,8 @@ export async function renderToString(vnode) {
     }
 
     // Self-closing tags
-    if (['img', 'br', 'hr', 'input', 'meta', 'link'].includes(tag)) {
-      return `<${tag}${attrs ? ' ' + attrs : ''} />`;
+    if (["img", "br", "hr", "input", "meta", "link"].includes(tag)) {
+      return `<${tag}${attrs ? " " + attrs : ""} />`;
     }
 
     const openTag = attrs ? `<${tag} ${attrs}>` : `<${tag}>`;
@@ -151,8 +151,8 @@ export async function renderToString(vnode) {
   }
 
   // Fallback for unexpected types
-  console.warn('[renderToString] Unexpected type:', typeof vnode, vnode);
-  return '';
+  console.warn("[renderToString] Unexpected type:", typeof vnode, vnode);
+  return "";
 }
 
 /**
@@ -191,7 +191,7 @@ export function FoxgirlCreampie({ children }) {
  *  head component - collect metadata for page
  */
 const headContext = {
-  title: 'App',
+  title: "App",
   meta: [],
   links: [],
   scripts: [],
@@ -227,18 +227,18 @@ export function Script(props) {
 
 function processHeadChild(child) {
   if (!child) return;
-  if (child.type === 'title') headContext.title = child.children?.[0] || 'App';
-  else if (child.type === 'meta') headContext.meta.push(child.props);
-  else if (child.type === 'link') headContext.links.push(child.props);
-  else if (child.type === 'script') headContext.scripts.push(child.props);
-  else if (child.type === Title) headContext.title = child.children?.[0] || 'App';
+  if (child.type === "title") headContext.title = child.children?.[0] || "App";
+  else if (child.type === "meta") headContext.meta.push(child.props);
+  else if (child.type === "link") headContext.links.push(child.props);
+  else if (child.type === "script") headContext.scripts.push(child.props);
+  else if (child.type === Title) headContext.title = child.children?.[0] || "App";
   else if (child.type === Meta) headContext.meta.push(child.props);
   else if (child.type === LustTag) headContext.links.push(child.props);
   else if (child.type === Script) headContext.scripts.push(child.props);
 }
 
 function resetHeadContext() {
-  headContext.title = 'App';
+  headContext.title = "App";
   headContext.meta = [];
   headContext.links = [];
   headContext.scripts = [];
@@ -322,19 +322,19 @@ async function Document({ content, language }) {
       .map((m) => {
         const attrs = Object.entries(m)
           .map(([k, v]) => `${k}="${v}"`)
-          .join(' ');
+          .join(" ");
         return `<meta ${attrs} />`;
       })
-      .join('\n    ');
+      .join("\n    ");
 
     const linkTags = headContext.links
       .map((l) => {
         const attrs = Object.entries(l)
           .map(([k, v]) => `${k}="${v}"`)
-          .join(' ');
+          .join(" ");
         return `<link ${attrs} />`;
       })
-      .join('\n    ');
+      .join("\n    ");
 
     headHtml = `<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -359,10 +359,10 @@ async function Document({ content, language }) {
     .map((s) => {
       const attrs = Object.entries(s)
         .map(([k, v]) => `${k}="${v}"`)
-        .join(' ');
+        .join(" ");
       return `<script ${attrs}></script>`;
     })
-    .join('\n    ');
+    .join("\n    ");
 
   // Build full HTML document as string
   return `<!DOCTYPE html>
@@ -373,7 +373,7 @@ async function Document({ content, language }) {
   ${bodyHtml}
     <script>
     window.__ENV__ = ${JSON.stringify(globalThis.__ENV__ || {})};
-    window.__ENVIRONMENT__ = ${JSON.stringify(globalThis.__ENVIRONMENT__ || 'production')};
+    window.__ENVIRONMENT__ = ${JSON.stringify(globalThis.__ENVIRONMENT__ || "production")};
     window.__HMR_PORT__ = ${globalThis.__HMR_PORT__ || 8790};
     window.__BUILD_TIMESTAMP__ = ${globalThis.__BUILD_TIMESTAMP__ || Date.now()};
   </script>
@@ -389,7 +389,7 @@ function detectLanguageFromRequest(request, config) {
   const url = new URL(request.url);
   // check url path first if explicit routing
   if (config.explicitRouting) {
-    const pathSegments = url.pathname.split('/').filter(Boolean);
+    const pathSegments = url.pathname.split("/").filter(Boolean);
     // check if first segment is a language code
     if (pathSegments.length > 0 && config.supportedLanguages?.includes(pathSegments[0])) {
       return pathSegments[0];
@@ -397,11 +397,11 @@ function detectLanguageFromRequest(request, config) {
   }
 
   // check accept-language header if auto-detection is enabled
-  if (config.defaultLanguage === 'auto') {
-    const acceptLang = request.headers.get('accept-language');
+  if (config.defaultLanguage === "auto") {
+    const acceptLang = request.headers.get("accept-language");
     if (acceptLang) {
       // parse all language preferences
-      const languages = acceptLang.split(',').map((lang) => lang.split(';')[0].trim().split('-')[0]);
+      const languages = acceptLang.split(",").map((lang) => lang.split(";")[0].trim().split("-")[0]);
       // find first supported language
       for (const lang of languages) {
         if (config.supportedLanguages?.includes(lang)) {
@@ -412,7 +412,7 @@ function detectLanguageFromRequest(request, config) {
   }
 
   // use fallback
-  return config.fallbackLanguage || 'en';
+  return config.fallbackLanguage || "en";
 }
 
 /**
@@ -436,10 +436,10 @@ export async function foxgirl(app, options = {}) {
   // before calling foxgirl
 
   // environment middleware
-  honoApp.use('*', async (c, next) => {
+  honoApp.use("*", async (c, next) => {
     globalThis.__DEPLOYMENT__ = c.env?.CF_VERSION_METADATA ?? null;
     globalThis.__ENV__ = c.env ?? {};
-    globalThis.__ENVIRONMENT__ = c.env?.ENVIRONMENT ?? 'development';
+    globalThis.__ENVIRONMENT__ = c.env?.ENVIRONMENT ?? "development";
     globalThis.__HMR_PORT__ = c.env?.DEV_RELOAD_PORT || 8790;
     await next();
   });
@@ -448,17 +448,17 @@ export async function foxgirl(app, options = {}) {
   if (options.middlewares) options.middlewares(honoApp);
 
   // language detection
-  honoApp.use('*', async (c, next) => {
+  honoApp.use("*", async (c, next) => {
     const language = detectLanguageFromRequest(
       c.req.raw,
       globalI18nConfig || {
-        supportedLanguages: ['en'],
-        defaultLanguage: 'en',
-        fallbackLanguage: 'en',
-      }
+        supportedLanguages: ["en"],
+        defaultLanguage: "en",
+        fallbackLanguage: "en",
+      },
     );
     setLanguage(language);
-    c.set('language', language);
+    c.set("language", language);
     await next();
   });
 
@@ -467,8 +467,8 @@ export async function foxgirl(app, options = {}) {
     const patterns = [];
     if (globalI18nConfig?.explicitRouting) {
       globalI18nConfig.supportedLanguages.forEach((lang) => {
-        patterns.push(`/${lang}${path === '/' ? '' : path}`);
-        if (path === '/') patterns.push(`/${lang}`);
+        patterns.push(`/${lang}${path === "/" ? "" : path}`);
+        if (path === "/") patterns.push(`/${lang}`);
       });
     }
     patterns.push(path);
@@ -476,43 +476,50 @@ export async function foxgirl(app, options = {}) {
       honoApp.get(pattern, async (c) => {
         try {
           resetHeadContext();
-          const language = c.get('language');
+          const language = c.get("language");
           setLanguage(language);
           const pageContent = component();
           // convert pageContent to string first before passing to Document
           const contentHtml = await renderToString(pageContent);
           const html = await Document({ content: contentHtml, language });
           // Set cache headers if configured
-          const headers = { 'Content-Type': 'text/html; charset=utf-8' };
-          const isDev = globalThis.__ENVIRONMENT__ === 'development';
+          const headers = { "Content-Type": "text/html; charset=utf-8" };
+          const isDev = globalThis.__ENVIRONMENT__ === "development";
 
           // Always set cache control headers
-          if (isDev) headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+          if (isDev) headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
           else if (headContext.cache) {
-            const { app = 0, cdn = null, staleWhileRevalidate = null, staleIfError = null, tags = null, mustRevalidate = false } = headContext.cache;
+            const {
+              app = 0,
+              cdn = null,
+              staleWhileRevalidate = null,
+              staleIfError = null,
+              tags = null,
+              mustRevalidate = false,
+            } = headContext.cache;
 
             const directives = [];
-            if (app === 0 && cdn === null) directives.push('no-cache', 'no-store', 'must-revalidate');
+            if (app === 0 && cdn === null) directives.push("no-cache", "no-store", "must-revalidate");
             else {
               // If CDN cache is set, make it public; otherwise private
               const isPublic = cdn !== null;
-              directives.push(isPublic ? 'public' : 'private');
+              directives.push(isPublic ? "public" : "private");
               if (app > 0) directives.push(`max-age=${app}`);
               if (cdn !== null) directives.push(`s-maxage=${cdn}`);
               if (staleWhileRevalidate !== null) directives.push(`stale-while-revalidate=${staleWhileRevalidate}`);
               if (staleIfError !== null) directives.push(`stale-if-error=${staleIfError}`);
-              if (mustRevalidate) directives.push('must-revalidate');
+              if (mustRevalidate) directives.push("must-revalidate");
             }
-            headers['Cache-Control'] = directives.join(', ');
+            headers["Cache-Control"] = directives.join(", ");
             // cloudflare-specific: Cache tags for purging
-            if (tags && Array.isArray(tags)) headers['Cache-Tag'] = tags.join(',');
+            if (tags && Array.isArray(tags)) headers["Cache-Tag"] = tags.join(",");
             // add vary header for i18n if using explicit routing
-            if (globalI18nConfig?.explicitRouting) headers['Vary'] = 'Accept-Language';
-          } else headers['Cache-Control'] = 'private, no-cache';
+            if (globalI18nConfig?.explicitRouting) headers["Vary"] = "Accept-Language";
+          } else headers["Cache-Control"] = "private, no-cache";
           return new Response(html, { headers });
         } catch (error) {
-          console.error('Route error:', error);
-          return c.text('Internal Server Error', 500);
+          console.error("Route error:", error);
+          return c.text("Internal Server Error", 500);
         }
       });
     });
@@ -522,19 +529,19 @@ export async function foxgirl(app, options = {}) {
   // 404 handler
   honoApp.notFound(async (c) => {
     const html = await Document({
-      content: '<div><h1>404 - Not Found</h1></div>',
-      language: c.get('language') || 'en',
+      content: "<div><h1>404 - Not Found</h1></div>",
+      language: c.get("language") || "en",
     });
     // Return with 404 status
     return new Response(html, {
       status: 404,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   });
   // error handler
   honoApp.onError((err, c) => {
-    console.error('Server error:', err);
-    return c.text('Internal Server Error', 500);
+    console.error("Server error:", err);
+    return c.text("Internal Server Error", 500);
   });
   return honoApp;
 }
@@ -548,7 +555,7 @@ export function getI18nConfig() {
 }
 
 // export utilities
-export { api } from '../shared/api.js';
-export { cdn } from '../shared/cdn.js';
-export { env } from '../shared/env.js';
-export { Image } from '../client/Image.js';
+export { api } from "../shared/api.js";
+export { cdn } from "../shared/cdn.js";
+export { env } from "../shared/env.js";
+export { Image } from "../client/Image.js";

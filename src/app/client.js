@@ -3,10 +3,10 @@
  * client-side rendering and hydration
  */
 
-import { render } from './server/jsx.js';
-import { createRouter } from './shared/router.js';
-import { initI18n, setLanguage, extractLanguageFromRoute } from './shared/i18n.js';
-import { onClimax } from './shared/reactivity.js';
+import { render } from "./server/jsx.js";
+import { createRouter } from "./shared/router.js";
+import { initI18n, setLanguage, extractLanguageFromRoute } from "./shared/i18n.js";
+import { onClimax } from "./shared/reactivity.js";
 
 let clientRouter = null;
 let i18nConfig = null;
@@ -15,27 +15,27 @@ let isRouterInitialized = false;
 
 // hydration configuration
 const hydrationConfig = {
-  isProduction: typeof window !== 'undefined' && window.location.hostname !== 'localhost',
+  isProduction: typeof window !== "undefined" && window.location.hostname !== "localhost",
   logMismatches: true,
   partialHydration: false,
 };
 
 // event delegation cache
 const delegatedEvents = new Map();
-const eventDelegationRoot = typeof document !== 'undefined' ? document : null;
+const eventDelegationRoot = typeof document !== "undefined" ? document : null;
 
 /**
  * get initial data from server
  * @returns {Object|null} Parsed initial data or null
  */
 function getInitialData() {
-  if (typeof window === 'undefined') return null;
-  const script = document.getElementById('cumstack-data');
+  if (typeof window === "undefined") return null;
+  const script = document.getElementById("cumstack-data");
   if (script && script.textContent) {
     try {
       return JSON.parse(script.textContent);
     } catch (e) {
-      console.error('Failed to parse initial data:', e);
+      console.error("Failed to parse initial data:", e);
     }
   }
   return null;
@@ -48,13 +48,13 @@ function getInitialData() {
 function initializeI18n(config) {
   i18nConfig = config;
   const initialData = getInitialData();
-  const initialLang = initialData?.language || config.fallbackLng || 'en';
+  const initialLang = initialData?.language || config.fallbackLng || "en";
   initI18n({
     defaultLanguage: initialLang,
-    detectBrowser: config.defaultLng === 'auto',
+    detectBrowser: config.defaultLng === "auto",
   });
   setLanguage(initialLang);
-  if (typeof window !== 'undefined') window.__HONMOON_I18N_CONFIG__ = config;
+  if (typeof window !== "undefined") window.__HONMOON_I18N_CONFIG__ = config;
 }
 
 /**
@@ -122,7 +122,7 @@ export function configureHydration(config) {
  * @param {Object} [data] - Additional data
  */
 function logHydrationWarning(message, data) {
-  if (!hydrationConfig.isProduction && hydrationConfig.logMismatches) console.warn(`[Hydration] ${message}`, data || '');
+  if (!hydrationConfig.isProduction && hydrationConfig.logMismatches) console.warn(`[Hydration] ${message}`, data || "");
 }
 
 /**
@@ -171,7 +171,7 @@ function delegateEvent(eventName, element, handler) {
  */
 function nodesMatch(vnode, domNode) {
   // text nodes
-  if (typeof vnode === 'string' || typeof vnode === 'number') return domNode.nodeType === Node.TEXT_NODE;
+  if (typeof vnode === "string" || typeof vnode === "number") return domNode.nodeType === Node.TEXT_NODE;
   // element nodes
   if (vnode.type && domNode.nodeType === Node.ELEMENT_NODE) {
     const tagMatch = domNode.tagName.toLowerCase() === vnode.type.toLowerCase();
@@ -192,17 +192,17 @@ function hydrateDOMElement(vnode, domNode) {
   // handle null/undefined
   if (vnode == null || vnode === false) return domNode;
   // handle text nodes
-  if (typeof vnode === 'string' || typeof vnode === 'number') {
+  if (typeof vnode === "string" || typeof vnode === "number") {
     if (domNode.nodeType === Node.TEXT_NODE) {
       const vnodeText = String(vnode);
       if (domNode.textContent !== vnodeText) {
-        logHydrationWarning('Text node mismatch', { expected: vnodeText, got: domNode.textContent });
+        logHydrationWarning("Text node mismatch", { expected: vnodeText, got: domNode.textContent });
         domNode.textContent = vnodeText;
       }
       return domNode;
     }
     // mismatch: replace with text node
-    logHydrationWarning('Expected text node, got element');
+    logHydrationWarning("Expected text node, got element");
     const textNode = document.createTextNode(String(vnode));
     domNode.parentNode?.replaceChild(textNode, domNode);
     return textNode;
@@ -231,19 +231,19 @@ function hydrateDOMElement(vnode, domNode) {
   // handle fragments or already rendered components
   if (!vnode.type) {
     // if it's an object without a type, it's likely already rendered - treat as children
-    if (typeof vnode === 'object') {
+    if (typeof vnode === "object") {
       // could be fragment result or component output
       if (vnode.children) return hydrateDOMElement(vnode.children, domNode);
       if (vnode.props?.children) return hydrateDOMElement(vnode.props.children, domNode);
       // fallback
-      logHydrationWarning('Unknown vnode structure', vnode);
+      logHydrationWarning("Unknown vnode structure", vnode);
       return domNode;
     }
     return hydrateDOMElement(vnode, domNode);
   }
   // handle element nodes
   if (domNode.nodeType !== Node.ELEMENT_NODE) {
-    logHydrationWarning('Expected element node', { vnode, domNode });
+    logHydrationWarning("Expected element node", { vnode, domNode });
     const newElement = createDOMElementForHydration(vnode);
     domNode.parentNode?.replaceChild(newElement, domNode);
     return newElement;
@@ -251,7 +251,7 @@ function hydrateDOMElement(vnode, domNode) {
   const element = domNode;
   // check tag name matches
   if (element.tagName.toLowerCase() !== vnode.type.toLowerCase()) {
-    logHydrationWarning('Tag name mismatch', {
+    logHydrationWarning("Tag name mismatch", {
       expected: vnode.type,
       got: element.tagName.toLowerCase(),
     });
@@ -261,39 +261,39 @@ function hydrateDOMElement(vnode, domNode) {
   }
 
   // check partial hydration marker
-  if (hydrationConfig.partialHydration && element.hasAttribute('data-cumstack-static')) return element;
+  if (hydrationConfig.partialHydration && element.hasAttribute("data-cumstack-static")) return element;
   // hydrate props
-  const booleanAttrs = new Set(['checked', 'selected', 'disabled', 'readonly', 'multiple', 'autofocus']);
+  const booleanAttrs = new Set(["checked", "selected", "disabled", "readonly", "multiple", "autofocus"]);
   Object.entries(vnode.props || {}).forEach(([key, value]) => {
-    if (key === 'key') {
+    if (key === "key") {
       // store key as data attribute for reconciliation
       if (!element.dataset.key) element.dataset.key = String(value);
-    } else if (key === 'className') {
+    } else if (key === "className") {
       if (element.className !== value) {
-        logHydrationWarning('className mismatch', { expected: value, got: element.className });
+        logHydrationWarning("className mismatch", { expected: value, got: element.className });
         element.className = value;
       }
-    } else if (key === 'style' && typeof value === 'object') {
+    } else if (key === "style" && typeof value === "object") {
       Object.assign(element.style, value);
-    } else if (key.startsWith('on') && typeof value === 'function') {
+    } else if (key.startsWith("on") && typeof value === "function") {
       // use event delegation for better performance
       const eventName = key.slice(2).toLowerCase();
       delegateEvent(eventName, element, value);
-    } else if (key === 'innerHTML') {
+    } else if (key === "innerHTML") {
       // skip innerHTML during hydration - it's already set by SSR
-    } else if (key === 'value' && (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA')) {
+    } else if (key === "value" && (element.tagName === "INPUT" || element.tagName === "TEXTAREA")) {
       // special handling for form values
       if (element.value !== value) element.value = value;
     } else if (booleanAttrs.has(key)) {
       // boolean attributes - check property not attribute
       if (element[key] !== value) element[key] = value;
-    } else if (key === 'ref' && typeof value === 'function') {
+    } else if (key === "ref" && typeof value === "function") {
       // handle refs
       value(element);
     } else if (value != null && value !== false) {
       const currentValue = element.getAttribute(key);
       if (currentValue !== String(value)) {
-        logHydrationWarning('Attribute mismatch', { key, expected: value, got: currentValue });
+        logHydrationWarning("Attribute mismatch", { key, expected: value, got: currentValue });
         element.setAttribute(key, value);
       }
     }
@@ -316,14 +316,14 @@ function hydrateDOMElement(vnode, domNode) {
         domChild = skipWhitespace(nextSibling);
         continue;
       }
-      logHydrationWarning('Extra DOM nodes', domChild);
+      logHydrationWarning("Extra DOM nodes", domChild);
       element.removeChild(domChild);
       domChild = skipWhitespace(nextSibling);
       continue;
     }
     if (!domChild) {
       // missing dom nodes - create them
-      logHydrationWarning('Missing DOM nodes');
+      logHydrationWarning("Missing DOM nodes");
       const newChild = createDOMElementForHydration(vnodeChildren[vnodeIndex]);
       if (newChild) element.appendChild(newChild);
       vnodeIndex++;
@@ -359,7 +359,7 @@ function hydrateDOMElement(vnode, domNode) {
         }
       }
       // no match found - replace node
-      logHydrationWarning('Node mismatch, replacing');
+      logHydrationWarning("Node mismatch, replacing");
       const newChild = createDOMElementForHydration(vChild);
       if (newChild) element.replaceChild(newChild, domChild);
       domChild = skipWhitespace(domChild.nextSibling);
@@ -383,7 +383,7 @@ function createDOMElementForHydration(vnode) {
   // handle null/undefined
   if (vnode == null || vnode === false) return null;
   // handle text nodes
-  if (typeof vnode === 'string' || typeof vnode === 'number') return document.createTextNode(String(vnode));
+  if (typeof vnode === "string" || typeof vnode === "number") return document.createTextNode(String(vnode));
   // handle arrays
   if (Array.isArray(vnode)) {
     const fragment = document.createDocumentFragment();
@@ -399,15 +399,15 @@ function createDOMElementForHydration(vnode) {
   const element = document.createElement(vnode.type);
   // set props
   Object.entries(vnode.props || {}).forEach(([key, value]) => {
-    if (key === 'key') element.dataset.key = String(value);
-    else if (key === 'className') element.className = value;
-    else if (key === 'style' && typeof value === 'object') Object.assign(element.style, value);
-    else if (key.startsWith('on') && typeof value === 'function') {
+    if (key === "key") element.dataset.key = String(value);
+    else if (key === "className") element.className = value;
+    else if (key === "style" && typeof value === "object") Object.assign(element.style, value);
+    else if (key.startsWith("on") && typeof value === "function") {
       // use event delegation
       const eventName = key.slice(2).toLowerCase();
       delegateEvent(eventName, element, value);
-    } else if (key === 'innerHTML') element.innerHTML = value;
-    else if (key === 'ref' && typeof value === 'function') value(element);
+    } else if (key === "innerHTML") element.innerHTML = value;
+    else if (key === "ref" && typeof value === "function") value(element);
     else if (value != null && value !== false) element.setAttribute(key, value);
   });
 
@@ -427,8 +427,8 @@ function createDOMElementForHydration(vnode) {
  */
 export function cowgirl(app, container) {
   // validate container
-  const containerEl = typeof container === 'string' ? document.querySelector(container) : container;
-  if (!containerEl || !(containerEl instanceof HTMLElement)) throw new Error('cumstack: Container must be a valid HTMLElement or selector');
+  const containerEl = typeof container === "string" ? document.querySelector(container) : container;
+  if (!containerEl || !(containerEl instanceof HTMLElement)) throw new Error("cumstack: Container must be a valid HTMLElement or selector");
   if (!clientRouter) clientRouter = createRouter();
   // initialize router only once
   if (!isRouterInitialized) {
@@ -436,7 +436,7 @@ export function cowgirl(app, container) {
     isRouterInitialized = true;
   }
   // check if we're hydrating ssr content
-  const isHydrating = containerEl.hasAttribute('data-cumstack-ssr') || containerEl.querySelector('[data-cumstack-ssr]') !== null;
+  const isHydrating = containerEl.hasAttribute("data-cumstack-ssr") || containerEl.querySelector("[data-cumstack-ssr]") !== null;
   // cleanup functions
   const cleanupFns = [];
   // track if first render (for hydration)
@@ -452,28 +452,28 @@ export function cowgirl(app, container) {
           params: clientRouter.currentParams(),
         });
         if (isHydrating && isFirstRender && containerEl.firstChild) {
-          if (!hydrationConfig.isProduction) console.log('Hydrating existing content');
-          const appRoot = containerEl.querySelector('.app-root') || containerEl.firstChild;
+          if (!hydrationConfig.isProduction) console.log("Hydrating existing content");
+          const appRoot = containerEl.querySelector(".app-root") || containerEl.firstChild;
           hydrateDOMElement(content, appRoot);
           isFirstRender = false;
         } else render(content, containerEl);
       }
     } catch (error) {
-      console.error('cumstack render error:', error);
+      console.error("cumstack render error:", error);
       containerEl.innerHTML = `<div style="color: red; padding: 20px;">Render Error: ${error.message}</div>`;
     }
   });
   cleanupFns.push(disposeEffect);
   // handle navigation clicks
   const clickHandler = (e) => {
-    const link = e.target.closest('a[href]');
+    const link = e.target.closest("a[href]");
     if (!link) return;
-    const href = link.getAttribute('href');
+    const href = link.getAttribute("href");
     if (!href) return;
-    const isSpaLust = link.hasAttribute('data-spa-link');
-    const isNoSpa = link.hasAttribute('data-no-spa');
+    const isSpaLust = link.hasAttribute("data-spa-link");
+    const isNoSpa = link.hasAttribute("data-no-spa");
     if (isNoSpa) return;
-    const isInternal = href.startsWith('/') && !href.startsWith('//');
+    const isInternal = href.startsWith("/") && !href.startsWith("//");
     if (isInternal || isSpaLust) {
       e.preventDefault();
       if (i18nConfig?.explicitRouting) {
@@ -483,8 +483,8 @@ export function cowgirl(app, container) {
       clientRouter.navigate(href);
     }
   };
-  document.addEventListener('click', clickHandler);
-  cleanupFns.push(() => document.removeEventListener('click', clickHandler));
+  document.addEventListener("click", clickHandler);
+  cleanupFns.push(() => document.removeEventListener("click", clickHandler));
   // setup prefetching with cleanup
   const prefetchCleanup = setupPrefetching();
   cleanupFns.push(prefetchCleanup);
@@ -503,9 +503,9 @@ function setupPrefetching() {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const link = entry.target;
-        const prefetchMode = link.getAttribute('data-prefetch');
-        const href = link.getAttribute('href');
-        if (prefetchMode === 'visible' && href && !prefetchedUrls.has(href)) prefetchUrl(href);
+        const prefetchMode = link.getAttribute("data-prefetch");
+        const href = link.getAttribute("href");
+        if (prefetchMode === "visible" && href && !prefetchedUrls.has(href)) prefetchUrl(href);
       } else {
         // unobserve links that leave viewport
         const link = entry.target;
@@ -538,19 +538,19 @@ function setupPrefetching() {
   const mouseoverHandler = (e) => {
     const link = e.target.closest('a[data-prefetch="hover"]');
     if (link) {
-      const href = link.getAttribute('href');
+      const href = link.getAttribute("href");
       if (href && !prefetchedUrls.has(href)) {
         prefetchUrl(href);
       }
     }
   };
-  document.addEventListener('mouseover', mouseoverHandler);
+  document.addEventListener("mouseover", mouseoverHandler);
   // return cleanup function
   return () => {
     observer.disconnect();
     mutationObserver.disconnect();
     observedLusts.clear();
-    document.removeEventListener('mouseover', mouseoverHandler);
+    document.removeEventListener("mouseover", mouseoverHandler);
   };
 }
 
@@ -566,16 +566,16 @@ async function prefetchUrl(href, timeout = 3000) {
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   try {
     await fetch(href, {
-      method: 'GET',
-      headers: { Accept: 'text/html' },
-      credentials: 'same-origin',
+      method: "GET",
+      headers: { Accept: "text/html" },
+      credentials: "same-origin",
       signal: controller.signal,
     });
   } catch (e) {
     // only remove from cache if it's not an abort (which is expected)
-    if (e.name !== 'AbortError') {
+    if (e.name !== "AbortError") {
       prefetchedUrls.delete(href);
-      console.debug('Prefetch failed:', href, e.message);
+      console.debug("Prefetch failed:", href, e.message);
     }
   } finally {
     clearTimeout(timeoutId);
@@ -595,5 +595,5 @@ export function useRouter() {
  * @returns {Object|null} i18n configuration
  */
 export function useI18nConfig() {
-  return i18nConfig || (typeof window !== 'undefined' ? window.__HONMOON_I18N_CONFIG__ : null);
+  return i18nConfig || (typeof window !== "undefined" ? window.__HONMOON_I18N_CONFIG__ : null);
 }

@@ -3,7 +3,7 @@
  * making requests to API domain with automatic auth token handling
  */
 
-import { env } from './env.js';
+import { env } from "./env.js";
 
 /**
  * get auth token from storage or context
@@ -12,8 +12,8 @@ import { env } from './env.js';
  */
 function getAuthToken(explicitToken) {
   if (explicitToken) return explicitToken;
-  if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('token');
+  if (typeof localStorage !== "undefined") {
+    return localStorage.getItem("token");
   }
   return null;
 }
@@ -31,9 +31,9 @@ export const api = {
    */
   async get(endpoint, options = {}) {
     const { token: explicitToken, ...fetchOptions } = options;
-    const domain = env('API_DOMAIN');
-    if (!domain) throw new Error('API_DOMAIN environment variable not set');
-    const protocol = domain.includes('127.0.0.1') || domain.includes('localhost') ? 'http://' : 'https://';
+    const domain = env("API_DOMAIN");
+    if (!domain) throw new Error("API_DOMAIN environment variable not set");
+    const protocol = domain.includes("127.0.0.1") || domain.includes("localhost") ? "http://" : "https://";
     const token = getAuthToken(explicitToken);
     const headers = { ...fetchOptions.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     const response = await fetch(`${protocol}${domain}${endpoint}`, { ...fetchOptions, headers });
@@ -51,18 +51,18 @@ export const api = {
    */
   async post(endpoint, payload, options = {}) {
     const { token: explicitToken, ...fetchOptions } = options;
-    const domain = env('API_DOMAIN');
-    if (!domain) throw new Error('API_DOMAIN environment variable not set');
-    const protocol = domain.includes('127.0.0.1') || domain.includes('localhost') ? 'http://' : 'https://';
+    const domain = env("API_DOMAIN");
+    if (!domain) throw new Error("API_DOMAIN environment variable not set");
+    const protocol = domain.includes("127.0.0.1") || domain.includes("localhost") ? "http://" : "https://";
     const token = getAuthToken(explicitToken);
     const headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...fetchOptions.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
     const response = await fetch(`${protocol}${domain}${endpoint}`, {
       ...fetchOptions,
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify(payload),
     });
@@ -80,18 +80,18 @@ export const api = {
    */
   async put(endpoint, payload, options = {}) {
     const { token: explicitToken, ...fetchOptions } = options;
-    const domain = env('API_DOMAIN');
-    if (!domain) throw new Error('API_DOMAIN environment variable not set');
-    const protocol = domain.includes('127.0.0.1') || domain.includes('localhost') ? 'http://' : 'https://';
+    const domain = env("API_DOMAIN");
+    if (!domain) throw new Error("API_DOMAIN environment variable not set");
+    const protocol = domain.includes("127.0.0.1") || domain.includes("localhost") ? "http://" : "https://";
     const token = getAuthToken(explicitToken);
     const headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...fetchOptions.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
     const response = await fetch(`${protocol}${domain}${endpoint}`, {
       ...fetchOptions,
-      method: 'PUT',
+      method: "PUT",
       headers,
       body: JSON.stringify(payload),
     });
@@ -108,14 +108,14 @@ export const api = {
    */
   async delete(endpoint, options = {}) {
     const { token: explicitToken, ...fetchOptions } = options;
-    const domain = env('API_DOMAIN');
-    if (!domain) throw new Error('API_DOMAIN environment variable not set');
-    const protocol = domain.includes('127.0.0.1') || domain.includes('localhost') ? 'http://' : 'https://';
+    const domain = env("API_DOMAIN");
+    if (!domain) throw new Error("API_DOMAIN environment variable not set");
+    const protocol = domain.includes("127.0.0.1") || domain.includes("localhost") ? "http://" : "https://";
     const token = getAuthToken(explicitToken);
     const headers = { ...fetchOptions.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
     const response = await fetch(`${protocol}${domain}${endpoint}`, {
       ...fetchOptions,
-      method: 'DELETE',
+      method: "DELETE",
       headers,
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);

@@ -3,7 +3,7 @@
  * simple manual routing with params and navigation
  */
 
-import { createMoan } from './reactivity.js';
+import { createMoan } from "./reactivity.js";
 
 /**
  * parse route pattern to regex with params
@@ -12,9 +12,9 @@ import { createMoan } from './reactivity.js';
  */
 function parseRoute(pattern) {
   const params = [];
-  const regexPattern = pattern.replace(/\*/g, '.*').replace(/:(\w+)/g, (_, param) => {
+  const regexPattern = pattern.replace(/\*/g, ".*").replace(/:(\w+)/g, (_, param) => {
     params.push(param);
-    return '([^/]+)';
+    return "([^/]+)";
   });
   return {
     regex: new RegExp(`^${regexPattern}$`),
@@ -42,7 +42,7 @@ export function matchRoute(path, pattern) {
  */
 export function createRouter() {
   const routes = new Map();
-  const [currentPath, setCurrentPath] = createMoan(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const [currentPath, setCurrentPath] = createMoan(typeof window !== "undefined" ? window.location.pathname : "/");
   const [currentParams, setCurrentParams] = createMoan({});
 
   /**
@@ -60,10 +60,10 @@ export function createRouter() {
    * @param {Object} options - Navigation options
    */
   function navigate(path, options = {}) {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const { replace = false, state = null } = options;
-    if (replace) window.history.replaceState(state, '', path);
-    else window.history.pushState(state, '', path);
+    if (replace) window.history.replaceState(state, "", path);
+    else window.history.pushState(state, "", path);
     setCurrentPath(path);
     matchCurrentRoute();
   }
@@ -95,8 +95,8 @@ export function createRouter() {
    * initialize router
    */
   function init() {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('popstate', handlePopState);
+    if (typeof window !== "undefined") {
+      window.addEventListener("popstate", handlePopState);
       matchCurrentRoute();
     }
   }
@@ -149,5 +149,5 @@ export function parseQuery(search) {
 export function buildQuery(params) {
   const searchParams = new URLSearchParams(params);
   const query = searchParams.toString();
-  return query ? `?${query}` : '';
+  return query ? `?${query}` : "";
 }

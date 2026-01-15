@@ -23,7 +23,7 @@ export function createMoan(initial) {
     return value;
   };
   const write = (next) => {
-    const newValue = typeof next === 'function' ? next(value) : next;
+    const newValue = typeof next === "function" ? next(value) : next;
     if (Object.is(value, newValue)) return;
     value = newValue;
     const effects = [...subscribers];
@@ -49,9 +49,9 @@ export function onClimax(fn) {
       cleanup.forEach((c) => c());
       cleanup.length = 0;
       const result = fn();
-      if (typeof result === 'function') cleanup.push(result);
+      if (typeof result === "function") cleanup.push(result);
     } catch (err) {
-      console.error('Effect error:', err);
+      console.error("Effect error:", err);
     } finally {
       effectStack.pop();
       currentEffect = effectStack[effectStack.length - 1] || null;
@@ -190,9 +190,9 @@ export const untrack = (fn) => {
  */
 let locationInstance = null;
 export function useLocation() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
-      location: () => ({ pathname: '/', search: '', hash: '' }),
+      location: () => ({ pathname: "/", search: "", hash: "" }),
       active: () => false,
       dispose: () => {},
     };
@@ -215,7 +215,7 @@ export function useLocation() {
 
   // patch history methods once
   if (!window.__locationPatched) {
-    ['pushState', 'replaceState'].forEach((method) => {
+    ["pushState", "replaceState"].forEach((method) => {
       const orig = history[method];
       history[method] = function (...args) {
         const result = orig.apply(this, args);
@@ -233,7 +233,7 @@ export function useLocation() {
   });
   const [location, setLocation] = createMoan(getLoc());
   const update = () => batch(() => setLocation(getLoc()));
-  const events = ['popstate', 'pushstate', 'replacestate'];
+  const events = ["popstate", "pushstate", "replacestate"];
   events.forEach((e) => window.addEventListener(e, update));
 
   const active = (path) => location().pathname === path;

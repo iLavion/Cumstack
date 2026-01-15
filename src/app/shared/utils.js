@@ -13,15 +13,15 @@ export function cn(...args) {
     .flat()
     .filter(Boolean)
     .map((arg) => {
-      if (typeof arg === 'string') return arg;
-      if (typeof arg === 'object')
+      if (typeof arg === "string") return arg;
+      if (typeof arg === "object")
         return Object.entries(arg)
           .filter(([, value]) => Boolean(value))
           .map(([key]) => key)
-          .join(' ');
-      return '';
+          .join(" ");
+      return "";
     })
-    .join(' ')
+    .join(" ")
     .trim();
 }
 
@@ -80,7 +80,7 @@ export function generateId() {
  * @returns {T}
  */
 export function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj === null || typeof obj !== "object") return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
   if (obj instanceof Array) return obj.map((item) => deepClone(item));
   const cloned = {};
@@ -95,9 +95,9 @@ export function deepClone(obj) {
  */
 export function isEmpty(value) {
   if (value == null) return true;
-  if (typeof value === 'string') return value.trim().length === 0;
+  if (typeof value === "string") return value.trim().length === 0;
   if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === 'object') return Object.keys(value).length === 0;
+  if (typeof value === "object") return Object.keys(value).length === 0;
   return false;
 }
 
@@ -107,7 +107,7 @@ export function isEmpty(value) {
  * @param {string} locale - Locale
  * @returns {string}
  */
-export function formatDate(date, locale = 'en-US') {
+export function formatDate(date, locale = "en-US") {
   const d = new Date(date);
   return d.toLocaleDateString(locale);
 }
@@ -119,9 +119,9 @@ export function formatDate(date, locale = 'en-US') {
  * @param {string} locale - Locale
  * @returns {string}
  */
-export function formatCurrency(amount, currency = 'USD', locale = 'en-US') {
+export function formatCurrency(amount, currency = "USD", locale = "en-US") {
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
   }).format(amount);
 }

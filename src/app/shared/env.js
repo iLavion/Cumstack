@@ -11,7 +11,7 @@
  */
 export function env(key, fallback) {
   // Server-side (globalThis.__ENV__)
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     const envVars = globalThis.__ENV__ || {};
     return envVars[key] ?? fallback;
   }
